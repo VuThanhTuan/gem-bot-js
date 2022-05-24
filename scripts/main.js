@@ -36,7 +36,7 @@ var grid;
 
 const username = "";
 const token = "bot";
-var visualizer = new Visualizer({ el: '#visual' });
+var visualizer = new Visualizer({ el: "#visual" });
 var params = window.params;
 var strategy = window.strategy;
 visualizer.start();
@@ -45,56 +45,60 @@ visualizer.start();
 initConnection();
 
 if (params.username) {
-	document.querySelector('#accountIn').value = params.username;
+  document.querySelector("#accountIn").value = params.username;
 }
 
 function initConnection() {
-	document.getElementById("log").innerHTML = "";
+  document.getElementById("log").innerHTML = "";
 
-	trace("Connecting...");
+  trace("Connecting...");
 
-	// Create configuration object
-	var config = {};
-	config.host = "172.16.100.112";
-	config.port = 8080;
-	// config.host = "10.10.10.18";
-	// config.port = 8888;
-	//config.debug = true;
-	config.useSSL = false;
+  // Create configuration object
+  var config = {};
+  config.host = "172.16.100.112";
+  config.port = 8080;
+  // config.host = "10.10.10.18";
+  // config.port = 8888;
+  //config.debug = true;
+  config.useSSL = false;
 
-	// Create SmartFox client instance
-	sfs = new SFS2X.SmartFox(config);
+  // Create SmartFox client instance
+  sfs = new SFS2X.SmartFox(config);
 
-	// Set logging
-	sfs.logger.level = SFS2X.LogLevel.INFO;
-	sfs.logger.enableConsoleOutput = true;
-	sfs.logger.enableEventDispatching = true;
+  // Set logging
+  sfs.logger.level = SFS2X.LogLevel.INFO;
+  sfs.logger.enableConsoleOutput = true;
+  sfs.logger.enableEventDispatching = true;
 
-	sfs.logger.addEventListener(SFS2X.LoggerEvent.DEBUG, onDebugLogged, this);
-	sfs.logger.addEventListener(SFS2X.LoggerEvent.INFO, onInfoLogged, this);
-	sfs.logger.addEventListener(SFS2X.LoggerEvent.WARNING, onWarningLogged, this);
-	sfs.logger.addEventListener(SFS2X.LoggerEvent.ERROR, onErrorLogged, this);
+  sfs.logger.addEventListener(SFS2X.LoggerEvent.DEBUG, onDebugLogged, this);
+  sfs.logger.addEventListener(SFS2X.LoggerEvent.INFO, onInfoLogged, this);
+  sfs.logger.addEventListener(SFS2X.LoggerEvent.WARNING, onWarningLogged, this);
+  sfs.logger.addEventListener(SFS2X.LoggerEvent.ERROR, onErrorLogged, this);
 
-	sfs.addEventListener(SFS2X.SFSEvent.CONNECTION, onConnection, this);
-	sfs.addEventListener(SFS2X.SFSEvent.CONNECTION_LOST, onConnectionLost, this);
+  sfs.addEventListener(SFS2X.SFSEvent.CONNECTION, onConnection, this);
+  sfs.addEventListener(SFS2X.SFSEvent.CONNECTION_LOST, onConnectionLost, this);
 
-	sfs.addEventListener(SFS2X.SFSEvent.LOGIN_ERROR, onLoginError, this);
-	sfs.addEventListener(SFS2X.SFSEvent.LOGIN, onLogin, this);
+  sfs.addEventListener(SFS2X.SFSEvent.LOGIN_ERROR, onLoginError, this);
+  sfs.addEventListener(SFS2X.SFSEvent.LOGIN, onLogin, this);
 
-	sfs.addEventListener(SFS2X.SFSEvent.ROOM_JOIN, OnRoomJoin, this);
-	sfs.addEventListener(SFS2X.SFSEvent.ROOM_JOIN_ERROR, OnRoomJoinError, this);
-	sfs.addEventListener(SFS2X.SFSEvent.EXTENSION_RESPONSE, OnExtensionResponse, this);
+  sfs.addEventListener(SFS2X.SFSEvent.ROOM_JOIN, OnRoomJoin, this);
+  sfs.addEventListener(SFS2X.SFSEvent.ROOM_JOIN_ERROR, OnRoomJoinError, this);
+  sfs.addEventListener(
+    SFS2X.SFSEvent.EXTENSION_RESPONSE,
+    OnExtensionResponse,
+    this
+  );
 
-	// Attempt connection
-	sfs.connect();
+  // Attempt connection
+  sfs.connect();
 }
 
 function onDisconnectBtClick() {
-	// Log message
-	trace("Disconnecting...");
+  // Log message
+  trace("Disconnecting...");
 
-	// Disconnect
-	sfs.disconnect();
+  // Disconnect
+  sfs.disconnect();
 }
 
 //------------------------------------
@@ -102,19 +106,19 @@ function onDisconnectBtClick() {
 //------------------------------------
 
 function onDebugLogged(event) {
-	trace(event.message, "DEBUG", true);
+  trace(event.message, "DEBUG", true);
 }
 
 function onInfoLogged(event) {
-	trace(event.message, "INFO", true);
+  trace(event.message, "INFO", true);
 }
 
 function onWarningLogged(event) {
-	trace(event.message, "WARN", true);
+  trace(event.message, "WARN", true);
 }
 
 function onErrorLogged(event) {
-	trace(event.message, "ERROR", true);
+  trace(event.message, "ERROR", true);
 }
 
 //------------------------------------
@@ -122,21 +126,30 @@ function onErrorLogged(event) {
 //------------------------------------
 
 function onConnection(event) {
-	if (event.success) {
-		trace("Connected to SmartFoxServer 2X!<br>SFS2X API version: " + sfs.version + "<br> IP: " + sfs.config.host);
-	}
-	else {
-		trace("Connection failed: " + (event.errorMessage ? event.errorMessage + " (" + event.errorCode + ")" : "Is the server running at all?"));
+  if (event.success) {
+    trace(
+      "Connected to SmartFoxServer 2X!<br>SFS2X API version: " +
+        sfs.version +
+        "<br> IP: " +
+        sfs.config.host
+    );
+  } else {
+    trace(
+      "Connection failed: " +
+        (event.errorMessage
+          ? event.errorMessage + " (" + event.errorCode + ")"
+          : "Is the server running at all?")
+    );
 
-		// Reset
-		reset();
-	}
+    // Reset
+    reset();
+  }
 }
 
 function onConnectionLost(event) {
-	trace("Disconnection occurred; reason is: " + event.reason);
+  trace("Disconnection occurred; reason is: " + event.reason);
 
-	reset();
+  reset();
 }
 
 //------------------------------------
@@ -144,381 +157,516 @@ function onConnectionLost(event) {
 //------------------------------------
 
 function trace(message, prefix, isDebug) {
-	var text = document.getElementById("log").innerHTML;
+  var text = document.getElementById("log").innerHTML;
 
-	var open = "<div" + (isDebug ? " class='debug'" : "") + ">" + (prefix ? "<strong>[SFS2X " + prefix + "]</strong><br>" : "");
-	var close = "</div>";
+  var open =
+    "<div" +
+    (isDebug ? " class='debug'" : "") +
+    ">" +
+    (prefix ? "<strong>[SFS2X " + prefix + "]</strong><br>" : "");
+  var close = "</div>";
 
-	if (isDebug)
-		message = "<pre>" + message.replace(/(?:\r\n|\r|\n)/g, "<br>") + "</pre>";
+  if (isDebug)
+    message = "<pre>" + message.replace(/(?:\r\n|\r|\n)/g, "<br>") + "</pre>";
 
-	const log = text + open + message + close;
-	document.getElementById("log").innerHTML = log;
-	visualizer.log(log);
+  const log = text + open + message + close;
+  document.getElementById("log").innerHTML = log;
+  visualizer.log(log);
 }
 
-
-
 function reset() {
-	// Remove SFS2X listeners
-	sfs.removeEventListener(SFS2X.SFSEvent.CONNECTION, onConnection);
-	sfs.removeEventListener(SFS2X.SFSEvent.CONNECTION_LOST, onConnectionLost);
+  // Remove SFS2X listeners
+  sfs.removeEventListener(SFS2X.SFSEvent.CONNECTION, onConnection);
+  sfs.removeEventListener(SFS2X.SFSEvent.CONNECTION_LOST, onConnectionLost);
 
-	sfs.logger.removeEventListener(SFS2X.LoggerEvent.DEBUG, onDebugLogged);
-	sfs.logger.removeEventListener(SFS2X.LoggerEvent.INFO, onInfoLogged);
-	sfs.logger.removeEventListener(SFS2X.LoggerEvent.WARNING, onWarningLogged);
-	sfs.logger.removeEventListener(SFS2X.LoggerEvent.ERROR, onErrorLogged);
+  sfs.logger.removeEventListener(SFS2X.LoggerEvent.DEBUG, onDebugLogged);
+  sfs.logger.removeEventListener(SFS2X.LoggerEvent.INFO, onInfoLogged);
+  sfs.logger.removeEventListener(SFS2X.LoggerEvent.WARNING, onWarningLogged);
+  sfs.logger.removeEventListener(SFS2X.LoggerEvent.ERROR, onErrorLogged);
 
-	sfs = null;
+  sfs = null;
 }
 
 function onLoginBtnClick() {
-	let uName = username || document.querySelector('#accountIn').value;
-	trace("Try login as " + uName);
+  let uName = username || document.querySelector("#accountIn").value;
+  trace("Try login as " + uName);
 
-	let data = new SFS2X.SFSObject();
-	data.putUtfString("BATTLE_MODE", "NORMAL");
-	data.putUtfString("ID_TOKEN", token);
-	data.putUtfString("NICK_NAME", uName);
+  let data = new SFS2X.SFSObject();
+  data.putUtfString("BATTLE_MODE", "NORMAL");
+  data.putUtfString("ID_TOKEN", token);
+  data.putUtfString("NICK_NAME", uName);
 
-	var isSent = sfs.send(new SFS2X.LoginRequest(uName, "", data, "gmm"));
+  var isSent = sfs.send(new SFS2X.LoginRequest(uName, "", data, "gmm"));
 
-	if (isSent) trace("Sent");
+  if (isSent) trace("Sent");
 }
 
 function onLoginError(event) {
-	var error = "Login error: " + event.errorMessage + " (code " + event.errorCode + ")";
-	trace(error);
+  var error =
+    "Login error: " + event.errorMessage + " (code " + event.errorCode + ")";
+  trace(error);
 }
 
 function onLogin(event) {
-	trace("Login successful!" +
-		"\n\tZone: " + event.zone +
-		"\n\tUser: " + event.user);
+  trace(
+    "Login successful!" + "\n\tZone: " + event.zone + "\n\tUser: " + event.user
+  );
 
-	document.getElementById("loginBtn").style.visibility = "hidden";
-	document.getElementById("findBtn").style.visibility = "visible";
+  document.getElementById("loginBtn").style.visibility = "hidden";
+  document.getElementById("findBtn").style.visibility = "visible";
 }
 
 function findGame() {
-	var data = new SFS2X.SFSObject();
-	data.putUtfString("type", "");
-	data.putUtfString("adventureId", "");
-	sfs.send(new SFS2X.ExtensionRequest("LOBBY_FIND_GAME", data));
+  var data = new SFS2X.SFSObject();
+  data.putUtfString("type", "");
+  data.putUtfString("adventureId", "");
+  sfs.send(new SFS2X.ExtensionRequest("LOBBY_FIND_GAME", data));
 }
 
 function OnRoomJoin(event) {
-	trace("OnRoomJoin " + event.room.name);
+  trace("OnRoomJoin " + event.room.name);
 
-	room = event.room;
+  room = event.room;
 }
 
 function OnRoomJoinError(event) {
-	trace("OnRoomJoinError");
-	console.error(event);
+  trace("OnRoomJoinError");
+  console.error(event);
 }
 
 function OnExtensionResponse(event) {
-	let evtParam = event.params;
-	var cmd = event.cmd;
-	trace("OnExtensionResponse " + cmd);
+  let evtParam = event.params;
+  var cmd = event.cmd;
+  trace("OnExtensionResponse " + cmd);
 
-	switch (cmd) {
-		case "START_GAME":
-			let gameSession = evtParam.getSFSObject("gameSession");
-			StartGame(gameSession, room);
-			break;
-		case "END_GAME":
-			EndGame();
-			break;
-		case "START_TURN":
-			StartTurn(evtParam);
-			break;
-		case "ON_SWAP_GEM":
-			SwapGem(evtParam);
-			break;
-		case "ON_PLAYER_USE_SKILL":
-			HandleGems(evtParam);
-			break;
-		case "PLAYER_JOINED_GAME":
-			sfs.send(new SFS2X.ExtensionRequest(I_AM_READY, new SFS2X.SFSObject(), room));
-			break;
-	}
+  switch (cmd) {
+    case "START_GAME":
+      let gameSession = evtParam.getSFSObject("gameSession");
+      StartGame(gameSession, room);
+      break;
+    case "END_GAME":
+      EndGame();
+      break;
+    case "START_TURN":
+      StartTurn(evtParam);
+      break;
+    case "ON_SWAP_GEM":
+      SwapGem(evtParam);
+      break;
+    case "ON_PLAYER_USE_SKILL":
+      HandleGems(evtParam);
+      break;
+    case "PLAYER_JOINED_GAME":
+      sfs.send(
+        new SFS2X.ExtensionRequest(I_AM_READY, new SFS2X.SFSObject(), room)
+      );
+      break;
+  }
 }
 
 function StartGame(gameSession, room) {
-	// Assign Bot player & enemy player
-	AssignPlayers(room);
+  // Assign Bot player & enemy player
+  AssignPlayers(room);
 
-	// Player & Heroes
-	let objBotPlayer = gameSession.getSFSObject(botPlayer.displayName);
-	let objEnemyPlayer = gameSession.getSFSObject(enemyPlayer.displayName);
+  // Player & Heroes
+  let objBotPlayer = gameSession.getSFSObject(botPlayer.displayName);
+  let objEnemyPlayer = gameSession.getSFSObject(enemyPlayer.displayName);
 
-	let botPlayerHero = objBotPlayer.getSFSArray("heroes");
-	let enemyPlayerHero = objEnemyPlayer.getSFSArray("heroes");
+  let botPlayerHero = objBotPlayer.getSFSArray("heroes");
+  let enemyPlayerHero = objEnemyPlayer.getSFSArray("heroes");
 
-	for (let i = 0; i < botPlayerHero.size(); i++) {
-		botPlayer.heroes.push(new Hero(botPlayerHero.getSFSObject(i)));
-	}
+  for (let i = 0; i < botPlayerHero.size(); i++) {
+    botPlayer.heroes.push(new Hero(botPlayerHero.getSFSObject(i)));
+  }
 
-	for (let i = 0; i < enemyPlayerHero.size(); i++) {
-		enemyPlayer.heroes.push(new Hero(enemyPlayerHero.getSFSObject(i)));
-	}
+  for (let i = 0; i < enemyPlayerHero.size(); i++) {
+    enemyPlayer.heroes.push(new Hero(enemyPlayerHero.getSFSObject(i)));
+  }
 
-	// Gems
-	grid = new Grid(gameSession.getSFSArray("gems"), null, botPlayer.getRecommendGemType());
-	currentPlayerId = gameSession.getInt("currentPlayerId");
-	trace("StartGame ");
+  // Gems
+  grid = new Grid(
+    gameSession.getSFSArray("gems"),
+    null,
+    botPlayer.getRecommendGemType()
+  );
+  currentPlayerId = gameSession.getInt("currentPlayerId");
+  trace("StartGame ");
 
-	// log("grid :" , grid);
+  // log("grid :" , grid);
 
-	// SendFinishTurn(true);
-	//taskScheduler.schedule(new FinishTurn(true), new Date(System.currentTimeMillis() + delaySwapGem));
-	//TaskSchedule(delaySwapGem, _ => SendFinishTurn(true));
+  // SendFinishTurn(true);
+  //taskScheduler.schedule(new FinishTurn(true), new Date(System.currentTimeMillis() + delaySwapGem));
+  //TaskSchedule(delaySwapGem, _ => SendFinishTurn(true));
 
-	setTimeout(function () { SendFinishTurn(true) }, delaySwapGem);
-	visualizer.setGame({
-		game: gameSession,
-		grid,
-		botPlayer,
-		enemyPlayer,
-	});
+  setTimeout(function () {
+    SendFinishTurn(true);
+  }, delaySwapGem);
+  visualizer.setGame({
+    game: gameSession,
+    grid,
+    botPlayer,
+    enemyPlayer,
+  });
 
-	if (strategy) {
-		strategy.setGame({
-			game: gameSession,
-			grid,
-			botPlayer,
-			enemyPlayer,
-		});
+  if (strategy) {
+    strategy.setGame({
+      game: gameSession,
+      grid,
+      botPlayer,
+      enemyPlayer,
+    });
 
-		strategy.addSwapGemHandle(SendSwapGem);
-		strategy.addCastSkillHandle(SendCastSkill);
-	}
-
+    strategy.addSwapGemHandle(SendSwapGem);
+    strategy.addCastSkillHandle(SendCastSkill);
+  }
 }
 
 function AssignPlayers(room) {
+  let users = room.getPlayerList();
 
-	let users = room.getPlayerList();
+  let user1 = users[0];
 
-	let user1 = users[0];
+  let arrPlayerId1 = Array.from(user1._playerIdByRoomId).map(
+    ([name, value]) => value
+  );
+  let playerId1 = arrPlayerId1.length > 1 ? arrPlayerId1[1] : arrPlayerId1[0];
 
-	let arrPlayerId1 = Array.from(user1._playerIdByRoomId).map(([name, value]) => (value));
-	let playerId1 = arrPlayerId1.length > 1 ? arrPlayerId1[1] : arrPlayerId1[0];
+  log("id user1: " + playerId1);
 
+  log("users.length : " + users.length);
 
-	log("id user1: " + playerId1);
+  if (users.length == 1) {
+    if (user1.isItMe) {
+      botPlayer = new Player(playerId1, "player1");
+      enemyPlayer = new Player(ENEMY_PLAYER_ID, "player2");
+    } else {
+      botPlayer = new Player(BOT_PLAYER_ID, "player2");
+      enemyPlayer = new Player(ENEMY_PLAYER_ID, "player1");
+    }
+    return;
+  }
 
-	log("users.length : " + users.length);
+  let user2 = users[1];
 
-	if (users.length == 1) {
-		if (user1.isItMe) {
+  let arrPlayerId2 = Array.from(user2._playerIdByRoomId).map(
+    ([name, value]) => value
+  );
+  let playerId2 = arrPlayerId2.length > 1 ? arrPlayerId2[1] : arrPlayerId2[0];
 
-			botPlayer = new Player(playerId1, "player1");
-			enemyPlayer = new Player(ENEMY_PLAYER_ID, "player2");
-		} else {
-			botPlayer = new Player(BOT_PLAYER_ID, "player2");
-			enemyPlayer = new Player(ENEMY_PLAYER_ID, "player1");
-		}
-		return;
-	}
+  log("id user2: " + playerId2);
 
+  log("id user1: " + playerId1);
 
-	let user2 = users[1];
-
-	let arrPlayerId2 = Array.from(user2._playerIdByRoomId).map(([name, value]) => (value));
-	let playerId2 = arrPlayerId2.length > 1 ? arrPlayerId2[1] : arrPlayerId2[0];
-
-
-	log("id user2: " + playerId2);
-
-	log("id user1: " + playerId1);
-
-	if (user1.isItMe) {
-		botPlayer = new Player(playerId1, "player" + playerId1);
-		enemyPlayer = new Player(playerId2, "player" + playerId2);
-	}
-	else {
-		botPlayer = new Player(playerId2, "player" + playerId2);
-		enemyPlayer = new Player(playerId1, "player" + playerId1);
-	}
-
-
+  if (user1.isItMe) {
+    botPlayer = new Player(playerId1, "player" + playerId1);
+    enemyPlayer = new Player(playerId2, "player" + playerId2);
+  } else {
+    botPlayer = new Player(playerId2, "player" + playerId2);
+    enemyPlayer = new Player(playerId1, "player" + playerId1);
+  }
 }
 
 function EndGame() {
-	isJoinGameRoom = false;
+  isJoinGameRoom = false;
 
-	document.getElementById("log").innerHTML = "";
-	visualizer.snapShot();
+  document.getElementById("log").innerHTML = "";
+  visualizer.snapShot();
 }
-
 
 function SendFinishTurn(isFirstTurn) {
-	let data = new SFS2X.SFSObject();
-	data.putBool("isFirstTurn", isFirstTurn);
-	log("sendExtensionRequest()|room:" + room.name + "|extCmd:" + FINISH_TURN + " first turn " + isFirstTurn);
-	trace("sendExtensionRequest()|room:" + room.name + "|extCmd:" + FINISH_TURN + " first turn " + isFirstTurn);
+  let data = new SFS2X.SFSObject();
+  data.putBool("isFirstTurn", isFirstTurn);
+  log(
+    "sendExtensionRequest()|room:" +
+      room.name +
+      "|extCmd:" +
+      FINISH_TURN +
+      " first turn " +
+      isFirstTurn
+  );
+  trace(
+    "sendExtensionRequest()|room:" +
+      room.name +
+      "|extCmd:" +
+      FINISH_TURN +
+      " first turn " +
+      isFirstTurn
+  );
 
-	SendExtensionRequest(FINISH_TURN, data);
-
+  SendExtensionRequest(FINISH_TURN, data);
 }
 
-
 function StartTurn(param) {
-	setTimeout(function() {
-		visualizer.snapShot();
-		currentPlayerId = param.getInt("currentPlayerId");
-		if (!isBotTurn()) {
-			trace("not isBotTurn");
-			return;
-		}
+  currentPlayerId = param.getInt("currentPlayerId");
+  visualizer.snapShot();
+  const redGems = countGem(GemType.RED)
+  console.log(redGems)
+  console.log(GemType.RED)
 
-		if (strategy) {
-			strategy.playTurn();
-			return;
-		}
-		let heroFullMana = botPlayer.anyHeroFullMana();
-		if (heroFullMana != null) {
-			SendCastSkill(heroFullMana)
-		} else {
-			SendSwapGem()
-		}
+  setTimeout(function () {
+    if (!isBotTurn()) {
+      trace("not isBotTurn");
+      return;
+    }
 
-	}, delaySwapGem);
+    if (strategy) {
+      strategy.playTurn();
+      return;
+    }
+    let heroFullMana = botPlayer.listHeroFullMana();
+    let listHeroFullMana = botPlayer.listHeroFullMana();
+
+    // =====================================
+    if (heroFullMana.length > 0) {
+      // ==================== if hero is canh cut ======= => buff for con trau ========= => if enemy full mana => contrau use skill
+      console.log("heroFullMana", heroFullMana);
+      console.log(enemyPlayer, "=============enemyPlayer");
+      handleListHeroFullMana(listHeroFullMana);
+      // SendSwapGem();
+      // SendCastSkill(heroFullMana,{targetId: 'SEA_SPIRIT'});
+    } else {
+      SendSwapGem();
+    }
+  }, delaySwapGem);
+}
+
+function countGem(gemType) {
+  let count = 0;
+  (grid.gems).forEach((gem) => {
+    if (gem.type === gemType) {
+      count = count + 1;
+    }
+  });
+  return count;
+}
+
+function handleListHeroFullMana(listHeroFullMana) {
+  const heroesEnemyFullMana = checkEnemyFullMana();
+
+  (listHeroFullMana || []).forEach((hero) => {
+    const heroEnemyLowHp = (enemyPlayer.getHerosAlive() || []).filter(
+      (heroEnemy) => heroEnemy.hp <= hero.attack
+    );
+    switch (hero.id) {
+      case "SEA_GOD": {
+        if (heroesEnemyFullMana.length > 0 || heroEnemyLowHp.length > 0) {
+          SendCastSkill(hero);
+        } else {
+          SendSwapGem();
+        }
+        // do something
+      }
+      case "SEA_SPIRIT": {
+        if (
+          (botPlayer.getHerosAlive() || []).filter(
+            (hero) => hero.id === "SEA_GOD"
+          ).length !== 0
+        ) {
+          SendCastSkill(hero, { targetId: "SEA_GOD" });
+        } else {
+          const firstHeroAlive = botPlayer.firstHeroAlive();
+          SendCastSkill(hero, { targetId: firstHeroAlive.id || "FIRE_SPIRIT" });
+        }
+      }
+      case "FIRE_SPIRIT": {
+        const herosHighAttack = (enemyPlayer.listHeroAlive() || []).filter(
+          (hero) => hero.attack> 18
+        );
+        if (herosHighAttack.length > 0) {
+          heroWithHighestDame = herosHighAttack[0];
+          SendCastSkill(hero, { targetId: heroWithHighestDame.id });
+        } else {
+          SendSwapGem();
+        }
+      }
+      case "CERBERUS": {
+        // listHeroFullMana.forEach()
+        SendCastSkill(hero);
+      }
+      default: {
+        SendCastSkill(
+          hero,
+          heroEnemyLowHp.length ? { targetId: heroEnemyLowHp[0]?.id } : {}
+        );
+      }
+    }
+  });
+}
+
+function checkEnemyFullMana() {
+  // if any hero full mana
+  const heroesEnemyFullMana = (enemyPlayer.heroes || []).filter(
+    (hero) => hero.mana === hero.maxMana
+  );
+  if (heroesEnemyFullMana.length > 0) {
+    return heroesEnemyFullMana;
+  }
+  return [];
 }
 
 function isBotTurn() {
-	return botPlayer.playerId == currentPlayerId;
+  return botPlayer.playerId == currentPlayerId;
 }
 
+function SendCastSkill(
+  heroCastSkill,
+  { targetId, selectedGem, gemIndex, isTargetAllyOrNot } = {}
+) {
+  var data = new SFS2X.SFSObject();
 
+  data.putUtfString("casterId", heroCastSkill.id.toString());
+  if (targetId) {
+    data.putUtfString("targetId", targetId);
+  } else if (heroCastSkill.isHeroSelfSkill()) {
+    data.putUtfString("targetId", botPlayer.firstHeroAlive().id.toString());
+  } else {
+    data.putUtfString("targetId", enemyPlayer.firstHeroAlive().id.toString());
+  }
+  console.log("selectedGem:  ", SelectGem());
+  if (selectedGem) {
+    data.putUtfString("selectedGem", selectedGem);
+  }
+  {
+    data.putUtfString("selectedGem", SelectGem().toString());
+  }
+  if (gemIndex) {
+    data.putUtfString("gemIndex", gemIndex);
+  }
+  {
+    data.putUtfString("gemIndex", GetRandomInt(64).toString());
+  }
 
-function SendCastSkill(heroCastSkill, { targetId, selectedGem, gemIndex, isTargetAllyOrNot } = {}) {
-	var data = new SFS2X.SFSObject();
+  if (isTargetAllyOrNot) {
+    data.putBool("isTargetAllyOrNot", isTargetAllyOrNot);
+  } else {
+    data.putBool("isTargetAllyOrNot", false);
+  }
+  log(
+    "sendExtensionRequest()|room:" +
+      room.Name +
+      "|extCmd:" +
+      USE_SKILL +
+      "|Hero cast skill: " +
+      heroCastSkill.name
+  );
+  trace(
+    "sendExtensionRequest()|room:" +
+      room.Name +
+      "|extCmd:" +
+      USE_SKILL +
+      "|Hero cast skill: " +
+      heroCastSkill.name
+  );
 
-	data.putUtfString("casterId", heroCastSkill.id.toString());
-	if (targetId) {
-		data.putUtfString("targetId", targetId);
-	} else if (heroCastSkill.isHeroSelfSkill()) {
-		data.putUtfString("targetId", botPlayer.firstHeroAlive().id.toString());
-	} else {
-		data.putUtfString("targetId", enemyPlayer.firstHeroAlive().id.toString());
-	}
-	console.log("selectedGem:  ", SelectGem());
-	if (selectedGem) {
-		data.putUtfString("selectedGem", selectedGem);
-	} {
-		data.putUtfString("selectedGem", SelectGem().toString());
-	}
-	if (gemIndex) {
-		data.putUtfString("gemIndex", gemIndex);
-	} {
-		data.putUtfString("gemIndex", GetRandomInt(64).toString());
-	}
-
-	if (isTargetAllyOrNot) {
-		data.putBool("isTargetAllyOrNot", isTargetAllyOrNot);
-	} else {
-		data.putBool("isTargetAllyOrNot", false);
-	}
-	log("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + USE_SKILL + "|Hero cast skill: " + heroCastSkill.name);
-	trace("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + USE_SKILL + "|Hero cast skill: " + heroCastSkill.name);
-
-	SendExtensionRequest(USE_SKILL, data);
-
+  SendExtensionRequest(USE_SKILL, data);
 }
 
 function SendSwapGem(swap) {
-	let indexSwap = swap ? swap.getIndexSwapGem() : grid.recommendSwapGem();
+  let indexSwap = swap ? swap.getIndexSwapGem() : grid.recommendSwapGem();
 
-	log("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + SWAP_GEM + "|index1: " + indexSwap[0] + " index2: " + indexSwap[1]);
-	trace("sendExtensionRequest()|room:" + room.Name + "|extCmd:" + SWAP_GEM + "|index1: " + indexSwap[0] + " index2: " + indexSwap[1]);
+  log(
+    "sendExtensionRequest()|room:" +
+      room.Name +
+      "|extCmd:" +
+      SWAP_GEM +
+      "|index1: " +
+      indexSwap[0] +
+      " index2: " +
+      indexSwap[1]
+  );
+  trace(
+    "sendExtensionRequest()|room:" +
+      room.Name +
+      "|extCmd:" +
+      SWAP_GEM +
+      "|index1: " +
+      indexSwap[0] +
+      " index2: " +
+      indexSwap[1]
+  );
 
-	var data = new SFS2X.SFSObject();
+  var data = new SFS2X.SFSObject();
 
-	data.putInt("index1", parseInt(indexSwap[0]));
-	data.putInt("index2", parseInt(indexSwap[1]));
+  data.putInt("index1", parseInt(indexSwap[0]));
+  data.putInt("index2", parseInt(indexSwap[1]));
 
-	SendExtensionRequest(SWAP_GEM, data);
-
+  SendExtensionRequest(SWAP_GEM, data);
 }
 
 function SwapGem(param) {
-	let isValidSwap = param.getBool("validSwap");
-	if (!isValidSwap) {
-		return;
-	}
+  let isValidSwap = param.getBool("validSwap");
+  if (!isValidSwap) {
+    return;
+  }
 
-	HandleGems(param);
+  HandleGems(param);
 }
 
-
 function HandleGems(paramz) {
-	let gameSession = paramz.getSFSObject("gameSession");
-	currentPlayerId = gameSession.getInt("currentPlayerId");
-	//get last snapshot
-	let snapshotSfsArray = paramz.getSFSArray("snapshots");
-	let lastSnapshot = snapshotSfsArray.getSFSObject(snapshotSfsArray.size() - 1);
-	let needRenewBoard = paramz.containsKey("renewBoard");
-	// update information of hero
-	HandleHeroes(lastSnapshot);
-	if (needRenewBoard) {
-		grid.updateGems(paramz.getSFSArray("renewBoard"), null);
-		// TaskSchedule(delaySwapGem, _ => SendFinishTurn(false));
-		setTimeout(function () { SendFinishTurn(false) }, delaySwapGem);
-		return;
-	}
-	// update gem
-	grid.gemTypes = botPlayer.getRecommendGemType();
+  let gameSession = paramz.getSFSObject("gameSession");
+  currentPlayerId = gameSession.getInt("currentPlayerId");
+  //get last snapshot
+  let snapshotSfsArray = paramz.getSFSArray("snapshots");
+  let lastSnapshot = snapshotSfsArray.getSFSObject(snapshotSfsArray.size() - 1);
+  let needRenewBoard = paramz.containsKey("renewBoard");
+  // update information of hero
+  HandleHeroes(lastSnapshot);
+  if (needRenewBoard) {
+    grid.updateGems(paramz.getSFSArray("renewBoard"), null);
+    // TaskSchedule(delaySwapGem, _ => SendFinishTurn(false));
+    setTimeout(function () {
+      SendFinishTurn(false);
+    }, delaySwapGem);
+    return;
+  }
+  // update gem
+  grid.gemTypes = botPlayer.getRecommendGemType();
 
-	let gemCode = lastSnapshot.getSFSArray("gems");
-	let gemModifiers = lastSnapshot.getSFSArray("gemModifiers");
+  let gemCode = lastSnapshot.getSFSArray("gems");
+  let gemModifiers = lastSnapshot.getSFSArray("gemModifiers");
 
-	console.log("gemModifiers : ", gemModifiers);
+  console.log("gemModifiers : ", gemModifiers);
 
-	grid.updateGems(gemCode, gemModifiers);
+  grid.updateGems(gemCode, gemModifiers);
 
-	// setTimeout(function () { SendFinishTurn(false) }, delaySwapGem);
+  // setTimeout(function () { SendFinishTurn(false) }, delaySwapGem);
 }
 
 function HandleHeroes(paramz) {
-	let heroesBotPlayer = paramz.getSFSArray(botPlayer.displayName);
-	for (let i = 0; i < botPlayer.heroes.length; i++) {
-		botPlayer.heroes[i].updateHero(heroesBotPlayer.getSFSObject(i));
-	}
+  let heroesBotPlayer = paramz.getSFSArray(botPlayer.displayName);
+  for (let i = 0; i < botPlayer.heroes.length; i++) {
+    botPlayer.heroes[i].updateHero(heroesBotPlayer.getSFSObject(i));
+  }
 
-	let heroesEnemyPlayer = paramz.getSFSArray(enemyPlayer.displayName);
-	for (let i = 0; i < enemyPlayer.heroes.length; i++) {
-		enemyPlayer.heroes[i].updateHero(heroesEnemyPlayer.getSFSObject(i));
-	}
+  let heroesEnemyPlayer = paramz.getSFSArray(enemyPlayer.displayName);
+  for (let i = 0; i < enemyPlayer.heroes.length; i++) {
+    enemyPlayer.heroes[i].updateHero(heroesEnemyPlayer.getSFSObject(i));
+  }
 }
-
 
 var log = function (msg) {
-	console.log("truong : " + "|" + msg);
-}
-
+  console.log("truong : " + "|" + msg);
+};
 
 function SendExtensionRequest(extCmd, paramz) {
-	sfs.send(new SFS2X.ExtensionRequest(extCmd, paramz, room));
+  sfs.send(new SFS2X.ExtensionRequest(extCmd, paramz, room));
 }
 
 function GetRandomInt(max) {
-	return Math.floor(Math.random() * max);
+  return Math.floor(Math.random() * max);
 }
 
-
 function SelectGem() {
-	let recommendGemType = botPlayer.getRecommendGemType();
+  let recommendGemType = botPlayer.getRecommendGemType();
 
-	console.log("recommendGemType: ", recommendGemType);
-	console.log("grid.gemType : ", grid.gemTypes);
+  console.log("recommendGemType: ", recommendGemType);
+  console.log("grid.gemType : ", grid.gemTypes);
 
-	let gemSelect = Array.from(recommendGemType).find(gemType => Array.from(grid.gemTypes).includes(gemType));
+  let gemSelect = Array.from(recommendGemType).find((gemType) =>
+    Array.from(grid.gemTypes).includes(gemType)
+  );
 
-	console.log("gemSelect : ", gemSelect);
+  console.log("gemSelect : ", gemSelect);
 
-	return gemSelect;
+  return gemSelect;
 }
