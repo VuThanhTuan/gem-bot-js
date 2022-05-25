@@ -34,8 +34,9 @@ var enemyPlayer;
 var currentPlayerId;
 var grid;
 
-const username = "";
-const token = "bot";
+const username = "thang.phammanh";
+const token =
+  "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0aGFuZy5waGFtbWFuaCIsImF1dGgiOiJST0xFX1VTRVIiLCJMQVNUX0xPR0lOX1RJTUUiOjE2NTM0MDIyMjE4MzQsImV4cCI6MTY1NTIwMjIyMX0.tpLJTyKFNW1PLWZoH-13LjKCzjVVQe0oMQNgX4k1GwmGPrRlhyxcCaSnOPOqHLSAl7yLQM-XLF_6e4-GBta5vA";
 var visualizer = new Visualizer({ el: "#visual" });
 var params = window.params;
 var strategy = window.strategy;
@@ -399,9 +400,9 @@ function SendFinishTurn(isFirstTurn) {
 function StartTurn(param) {
   currentPlayerId = param.getInt("currentPlayerId");
   visualizer.snapShot();
-  const redGems = countGem(GemType.RED)
-  console.log(redGems)
-  console.log(GemType.RED)
+  const redGems = countGem(GemType.RED);
+  console.log(redGems);
+  console.log(GemType.RED);
 
   setTimeout(function () {
     if (!isBotTurn()) {
@@ -432,7 +433,7 @@ function StartTurn(param) {
 
 function countGem(gemType) {
   let count = 0;
-  (grid.gems).forEach((gem) => {
+  grid.gems.forEach((gem) => {
     if (gem.type === gemType) {
       count = count + 1;
     }
@@ -452,7 +453,7 @@ function handleListHeroFullMana(listHeroFullMana) {
         if (heroesEnemyFullMana.length > 0 || heroEnemyLowHp.length > 0) {
           SendCastSkill(hero);
         } else {
-          SendSwapGem();
+          // SendSwapGem();
         }
         // do something
       }
@@ -469,19 +470,32 @@ function handleListHeroFullMana(listHeroFullMana) {
         }
       }
       case "FIRE_SPIRIT": {
+        const redGems = countGem(GemType.RED);
+
         const herosHighAttack = (enemyPlayer.listHeroAlive() || []).filter(
-          (hero) => hero.attack> 18
+          (hero) => hero.attack + redGems > 18
         );
+
         if (herosHighAttack.length > 0) {
           heroWithHighestDame = herosHighAttack[0];
           SendCastSkill(hero, { targetId: heroWithHighestDame.id });
         } else {
-          SendSwapGem();
+          // SendSwapGem();
         }
       }
       case "CERBERUS": {
         // listHeroFullMana.forEach()
         SendCastSkill(hero);
+      }
+      case "MONK": {
+        SendCastSkill(hero);
+      }
+      case "THUNDER_GOD": {
+        const yellowGems = countGem(GemType.YELLOW);
+        const herroAttack = hero.attack + yellowGems;
+        if (herroAttack > 15) {
+          SendCastSkill(hero);
+        }
       }
       default: {
         SendCastSkill(
@@ -491,6 +505,8 @@ function handleListHeroFullMana(listHeroFullMana) {
       }
     }
   });
+
+  SendSwapGem();
 }
 
 function checkEnemyFullMana() {
