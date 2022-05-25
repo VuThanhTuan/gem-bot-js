@@ -288,7 +288,10 @@ function StartGame(gameSession, room) {
   grid = new Grid(
     gameSession.getSFSArray("gems"),
     null,
-    botPlayer.getRecommendGemType()
+    botPlayer.getRecommendGemType(),
+    enemyPlayer.getRecommendGemType(),
+    botPlayer,
+    enemyPlayer
   );
   currentPlayerId = gameSession.getInt("currentPlayerId");
   trace("StartGame ");
