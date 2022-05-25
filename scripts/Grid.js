@@ -1,21 +1,25 @@
-function union (sets) {
+function union(sets) {
     return sets.reduce((combined, list) => {
-      return new Set([...combined, ...list]);
+        return new Set([...combined, ...list]);
     }, new Set());
-  }
+}
 
 class GridDistinction {
     removedGems = [];
     matchesSize = [];
 }
 class Grid {
-    constructor(gemsCode, gemModifiers, gemTypes) {
+    constructor(gemsCode, gemModifiers, gemTypes, enemyGemTypes, botPlayer, enemyPlayer) {
         this.gems = [];
         this.gemeCode = gemsCode;
         this.gemTypes = new Set();
         this.updateGems(gemsCode, gemModifiers);
 
         this.myHeroGemType = gemTypes;
+        this.enemyGemTypes = enemyGemTypes;
+
+        this.botPlayer = botPlayer;
+        this.enemyPlayer = enemyPlayer;
     }
 
     updateGems(gemsCode, gemModifiers) {
@@ -33,48 +37,155 @@ class Grid {
         }
     }
 
+    getMaxGemMatch(listMatchGem) {
+        const max = Math.max(...listMatchGem.map(o => o.sizeMatch));
+        return listMatchGem.find(x => x.sizeMatch == max);
+    }
+
     recommendSwapGem() {
         let listMatchGem = this.suggestMatch();
 
         console.log("recommendSwapGem: ", listMatchGem);
 
+
+
         if (listMatchGem.length === 0) {
             return [-1, -1];
         }
 
-        let matchGemSizeThanFour = listMatchGem.find(gemMatch => gemMatch.sizeMatch > 4);
+        try {
+            // ưu tiên ăn kiếm nếu đủ giết tướng đầu tiên và tướng đầu tiên là chủ lực (bò || sói || thunder)
+            const listAllMatchSword = listMatchGem.filter(gemMatch => gemMatch.type == GemType.SWORD);
+            const myFirstHero = this.botPlayer.firstHeroAlive();
+            const enemyFirstHero = this.enemyPlayer.firstHeroAlive();
+            if (listAllMatchSword.length > 0
+                && enemyFirstHero.shouldbeKillByDam(myFirstHero)) {
+                console.log("11111111111");
+                let matchGemSword = this.getMaxGemMatch(listAllMatchSword)
+                if (matchGemSword) {
+                    return matchGemSword.getIndexSwapGem();
+                }
+            }
 
-        if (matchGemSizeThanFour) {
-            return matchGemSizeThanFour.getIndexSwapGem();
+            // ưu tiên match size 5 || 4 nếu include gem of hero hoặc enemy
+            let matchGemSizeThanFourAll = listMatchGem.filter(gemMatch => gemMatch.sizeMatch >= 4);
+            if (matchGemSizeThanFourAll.length
+                && (matchGemSizeThanFourAll.filter(x => Array.from(this.myHeroGemType).includes(x.type))
+                    || matchGemSizeThanFourAll.filter(x => Array.from(this.enemyGemTypes).includes(x.type)))) {
+                console.log("22222222222");
+                let matMyheroGem = matchGemSizeThanFourAll.find(x => Array.from(this.myHeroGemType).includes(x.type));
+                let maxMatchGemSword = this.getMaxGemMatch(matchGemSizeThanFourAll);
+                if (matMyheroGem) {
+                    return matMyheroGem.getIndexSwapGem();
+                }
+                else {
+                    return maxMatchGemSword.getIndexSwapGem();
+                }
+            }
+
+            // todo ưu tiên ăn nhiều nhất có thể
+
+            /// Gem of heroes ưu tiên ăn gem tướng buff giai đoạn đầu tướng chủ lực giai đoạn sau
+            console.log("myHeroGemType: ", this.myHeroGemType, "| Array.from(this.myHeroGemType)", Array.from(this.myHeroGemType));
+            let allmatchGemType = listMatchGem.filter(gemMatch => Array.from(this.myHeroGemType).includes(gemMatch.type));
+            console.log("matchGemAll: ", allmatchGemType);
+            const BF_HERO_ID = "MONK";
+            const DM_HERO_ID_1 = "CERBERUS";
+            const DM_HERO_ID_2 = "FIRE_SPIRIT";
+            if (allmatchGemType.length) {
+                console.log("33333333333");
+                let matchGemType = allmatchGemType[0];
+                const allHeroAlive = this.botPlayer.getHerosAlive();
+                console.log('allmatchGemType', allmatchGemType);
+                const buffHero = allHeroAlive.find(x => x.id == BF_HERO_ID);
+                const dmHero1 = allHeroAlive.find(x => x.id == DM_HERO_ID_1);
+                const dmHero2 = allHeroAlive.find(x => x.id == DM_HERO_ID_2);
+
+                const buffHeroGemType = buffHero && buffHero.gemTypes.map(x => GemType[x]);
+                let allDameGemTypes = [];
+                if (dmHero1) {
+                    allDameGemTypes = [...dmHero1.gemTypes];
+                }
+                if (dmHero2) {
+                    allDameGemTypes = [...allDameGemTypes, ...dmHero2.gemTypes];
+                }
+
+                allDameGemTypes = allDameGemTypes.map(x => GemType[x]);
+                console.log('buffHero', buffHero);
+                if (buffHero && ((dmHero1 && dmHero1.attack < 15) || (dmHero2 && dmHero2.attack < 15))
+                    // Tướng buff còn sống khỏe
+                    && !(buffHero.hp <= 10 && this.enemyPlayer.hasHeroFullManaAndCanKill())) {
+                    // ăn ngọc buff
+                    console.log('ăn ngọc buff', matchGemType);
+                    const matchGemTypeTemp = allmatchGemType.find(x => buffHeroGemType.includes(x.type));
+                    if (matchGemTypeTemp) {
+                        matchGemType = matchGemTypeTemp;
+                    }
+                } else if ((dmHero1 && dmHero1.attack > 15) || (dmHero2 && dmHero2.attack > 15)) {
+                    // ăn ngọc dame
+                    // cả 2 tướng dame còn sống ưu tiên ăn cho tướng nhiều mana hơn
+                    let hightPriorityHero;
+                    if (dmHero1 && dmHero2) {
+                        if (dmHero1.mana >= 4 || dmHero1.mana > dmHero2.mana) {
+                            hightPriorityHero = dmHero1;
+                        }
+                        else {
+                            hightPriorityHero = dmHero2;
+                        }
+                    }
+                    let matchGemTypeTemp;
+                    if (hightPriorityHero) {
+                        matchGemTypeTemp = allmatchGemType.find(x => hightPriorityHero.gemTypes.map(x => GemType[x]).includes(x.type));
+                    }
+                    else {
+                        matchGemTypeTemp = allmatchGemType.find(x => allDameGemTypes.includes(x.type));
+                    }
+
+                    
+                    if (matchGemTypeTemp) {
+                        matchGemType = matchGemTypeTemp;
+                    }
+                    console.log('ăn ngọc dame', matchGemType);
+                } else {
+                    matchGemType = allmatchGemType[0];
+                }
+
+                return matchGemType.getIndexSwapGem();
+            }
+            ///
+
+            // ưu tiên match size 5
+            if (matchGemSizeThanFourAll.length) {
+                console.log("44444444444444");
+                let matchGemSword = this.getMaxGemMatch(matchGemSizeThanFourAll);
+                if (matchGemSword) {
+                    return matchGemSword.getIndexSwapGem();
+                }
+            }
+
+            // ưu tiên ăn kiếm
+            let matchGemSword = this.getMaxGemMatch(listAllMatchSword);
+            if (matchGemSword) {
+                console.log("55555555555");
+                return matchGemSword.getIndexSwapGem();
+            }
+
+            //ưu tiên match size 4
+            let matchGemSizeThanThree = listMatchGem.find(gemMatch => gemMatch.sizeMatch > 3);
+
+            if (matchGemSizeThanThree) {
+                console.log("666666666666");
+                return matchGemSizeThanThree.getIndexSwapGem();
+            }
+            console.log("7777");
+            console.log("listMatchGem[0].getIndexSwapGem() ", listMatchGem[0].getIndexSwapGem());
+
+            return listMatchGem[0].getIndexSwapGem();
+        } catch (ex) {
+            console.error("exxx", ex);
+            const matchGem = listMatchGem.find(gemMatch => Array.from(this.myHeroGemType).includes(gemMatch.type) || gemMatch.type == 0);
+            return matchGem ? matchGem.getIndexSwapGem() : listMatchGem[0].getIndexSwapGem();
         }
-
-        let matchGemSizeThanThree = listMatchGem.find(gemMatch => gemMatch.sizeMatch > 3);
-
-        if (matchGemSizeThanThree) {
-            return matchGemSizeThanThree.getIndexSwapGem();
-        }
-
-        let matchGemSword = listMatchGem.find(gemMatch => gemMatch.type == GemType.SWORD);
-
-        if (matchGemSword) {
-            return matchGemSword.getIndexSwapGem();
-        }
-
-        console.log("myHeroGemType: ", this.myHeroGemType, "| Array.from(this.myHeroGemType)", Array.from(this.myHeroGemType));
-
-        let matchGemType = listMatchGem.find(gemMatch => Array.from(this.myHeroGemType).includes(gemMatch.type));
-
-        console.log("matchGem: ", matchGemType);
-
-
-        if (matchGemType) {
-            console.log("matchGemType ");
-            return matchGemType.getIndexSwapGem();
-        }
-
-        console.log("listMatchGem[0].getIndexSwapGem() ", listMatchGem[0].getIndexSwapGem());
-
-        return listMatchGem[0].getIndexSwapGem();
     }
 
     suggestMatch() {
@@ -121,7 +232,7 @@ class Grid {
 
     checkMatchSwapGem(listMatchGem, currentGem, swapGem) {
 
-        if(currentGem.locked || swapGem.locked) {
+        if (currentGem.locked || swapGem.locked) {
             return;
         }
 
@@ -171,7 +282,7 @@ class Grid {
 
         let center = this.gemAt(x, y);
 
-        if(center.type === -1 || center.removed || center.locked) {
+        if (center.type === -1 || center.removed || center.locked) {
             return res;
         }
 
@@ -251,67 +362,67 @@ class Grid {
         const result = this.performDistinction(allMatchGems, distinction);
         return result;
     }
-    
+
     getAllMatches() {
         const matches = [];
-        for(const gem of this.gems) {
-            const matchGems = this.matchesAt(parseInt(gem.x), parseInt(gem.y)); 
-            if(matchGems.size > 0) {
+        for (const gem of this.gems) {
+            const matchGems = this.matchesAt(parseInt(gem.x), parseInt(gem.y));
+            if (matchGems.size > 0) {
                 matches.push(matchGems);
             }
         }
-        return matches.length > 0 ? [union(matches)] : [];
+        return matches.length > 0 ? matches : [];
     }
-    
+
     performDistinction(allMatchGems, distinction) {
-        for(const matchGems of allMatchGems) {
+        for (const matchGems of allMatchGems) {
             this.distinctGemBatch(matchGems, distinction)
         }
         this.performReshape();
         const nextMatches = this.getAllMatches();
-        if(nextMatches.length > 0) {
+        if (nextMatches.length > 0) {
             this.performDistinction(nextMatches, distinction);
-        } 
+        }
         return distinction;
     }
 
     performGemEffect(gem, distinction) {
-        switch(gem.modifier) {
+        switch (gem.modifier) {
             case GemModifier.EXPLODE_HORIZONTAL: {
                 this.performExplodeHorizontal(gem, distinction);
-            } 
+            }
             case GemModifier.EXPLODE_VERTICAL: {
                 this.performExplodeVertical(gem, distinction);
-            } 
+            }
             case GemModifier.EXPLODE_SQUARE: {
                 this.performExplodeSquare(gem, distinction);
-            } 
+            }
         }
     }
 
     performExplodeHorizontal(gem, distinction) {
-        for(let x = 0; x < 8; x++) {
+        for (let x = 0; x < 8; x++) {
             const targetGem = this.gemAt(x, gem.y);
-            if(!targetGem.sameOne(gem)) {
+            if (!targetGem.sameOne(gem)) {
                 this.distinctGem(targetGem, distinction);
             }
         }
     }
 
     performExplodeVertical(gem, distinction) {
-        for(let y = 0; y < 8; y++) {
+        for (let y = 0; y < 8; y++) {
             const targetGem = this.gemAt(gem.x, y);
-            if(!targetGem.sameOne(gem)) {
+            if (!targetGem.sameOne(gem)) {
                 this.distinctGem(targetGem, distinction);
             }
         }
     }
 
     performExplodeSquare(gem, distinction) {
-        for(let x = gem.x - 1; x < gem.x + 1; x++) {
-            for(let y = gem.y - 1; y < gem.y + 1; y++) {
+        for (let x = gem.x - 1; x < gem.x + 1; x++) {
+            for (let y = gem.y - 1; y < gem.y + 1; y++) {
                 const targetGem = this.gemAt(gem.x, y);
-                if(!targetGem.sameOne(gem)) {
+                if (!targetGem.sameOne(gem)) {
                     this.distinctGem(targetGem, distinction);
                 }
             }
@@ -320,19 +431,19 @@ class Grid {
 
     distinctGemBatch(gems, distinction) {
         distinction.matchesSize.push(gems.size);
-        for(const gem of gems) {
+        for (const gem of gems) {
             this.distinctGem(gem, distinction);
         }
-        
+
     }
 
     maxLinearMatch(gems) {
         const matchesX = {};
         const matchesY = {};
 
-        for(const gem of gems) {
-            matchesX[gem.x] = matchesX[gem.x] ? 1 : matchesX[gem.x] + 1;  
-            matchesY[gem.y] = matchesY[gem.y] ? 1 : matchesY[gem.y] + 1;  
+        for (const gem of gems) {
+            matchesX[gem.x] = matchesX[gem.x] ? 1 : matchesX[gem.x] + 1;
+            matchesY[gem.y] = matchesY[gem.y] ? 1 : matchesY[gem.y] + 1;
         }
 
         const maxX = Math.max(...Object.values(matchesX));
@@ -342,7 +453,7 @@ class Grid {
     }
 
     distinctGem(gem, distinction) {
-        if(gem.removed || gem.locked) {
+        if (gem.removed || gem.locked) {
             return;
         }
         gem.removed = true;
@@ -351,10 +462,10 @@ class Grid {
     }
 
     performReshape() {
-        for(const gem of this.gems) {
-            if(gem.removed) {
+        for (const gem of this.gems) {
+            if (gem.removed) {
                 const aboveGem = this.gemAt(gem.x, gem.y + 1);
-                if(!aboveGem) {
+                if (!aboveGem) {
                     gem.removed = false;
                     gem.locked = true;
                     gem.type = -1;
@@ -369,7 +480,7 @@ class Grid {
         }
 
         const toRemove = this.gems.find(gem => gem.removed);
-        if(toRemove) {
+        if (toRemove) {
             this.performReshape();
         }
         return false;

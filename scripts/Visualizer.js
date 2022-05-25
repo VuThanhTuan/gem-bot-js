@@ -88,7 +88,7 @@ class Visualizer {
 
     renderCell(cell, gem) {
         const type = gem ?  gem.type : '';
-        cell.innerText = type + "_" +gem.index;
+        cell.innerText = type;
         cell.style.backgroundColor = GemColor[type];
     }
 

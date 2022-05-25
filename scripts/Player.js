@@ -1,127 +1,90 @@
-class Player {
-  constructor(playerId, name) {
-    this.signature = Math.random();
-    this.playerId = playerId;
-    this.displayName = name;
+class Player
+{
+    constructor(playerId, name)
+    {
+        this.signature = Math.random();
+        this.playerId = playerId;
+        this.displayName = name;
 
-    this.heroes = [];
-    this.heroGemType = new Set();
-  }
-
-  getTotalHeroAlive() {
-    return this.getHerosAlive().length;
-  }
-
-  getHerosAlive() {
-    return this.heroes.filter((hero) => hero.isAlive());
-  }
-
-  getCastableHeros() {
-    let arr = this.heroes.filter((hero) => hero.isAlive() && hero.isFullMana());
-    return arr;
-  }
-
-  sameOne(other) {
-    return this.signature == other.signature;
-  }
-
-  isLose() {
-    return !this.firstHeroAlive();
-  }
-
-  anyHeroFullMana() {
-    let arr = this.heroes.filter((hero) => hero.isAlive() && hero.isFullMana());
-
-    let hero =
-      arr != null && arr != undefined && arr.length > 0 ? arr[0] : null;
-    return hero;
-  }
-
-  listHeroFullMana() {
-    let arr = this.heroes.filter((hero) => hero.isAlive() && hero.isFullMana());
-
-    // let hero = arr != null && arr != undefined && arr.length > 0 ? arr[0] : null;
-    return arr != null && arr != undefined && arr.length > 0 ? arr : [];
-  }
-
-  listHeroAlive() {
-    let arr = this.heroes.filter((hero) => hero.isAlive());
-    return arr != null && arr != undefined && arr.length > 0 ? arr : [];
-  }
-
-  firstHeroAlive() {
-    let arr = this.heroes.filter((hero) => hero.isAlive());
-
-    let hero =
-      arr != null && arr != undefined && arr.length > 0 ? arr[0] : null;
-    return hero;
-  }
-
-  getTotalHeroAlive() {
-    return this.getHerosAlive().length;
-  }
-
-  getHerosAlive() {
-    return this.heroes.filter((hero) => hero.isAlive());
-  }
-
-  getCastableHeros() {
-    let arr = this.heroes.filter((hero) => hero.isAlive() && hero.isFullMana());
-    return arr;
-  }
-
-  sameOne(other) {
-    return this.signature == other.signature;
-  }
-
-  isLose() {
-    return !this.firstHeroAlive();
-  }
-
-  anyHeroFullMana() {
-    let arr = this.heroes.filter((hero) => hero.isAlive() && hero.isFullMana());
-
-    let hero =
-      arr != null && arr != undefined && arr.length > 0 ? arr[0] : null;
-    return hero;
-  }
-
-  firstHeroAlive() {
-    let arr = this.heroes.filter((hero) => hero.isAlive());
-
-    let hero =
-      arr != null && arr != undefined && arr.length > 0 ? arr[0] : null;
-    return hero;
-  }
-
-  getRecommendGemType() {
-    this.heroGemType = new Set();
-
-    for (let i = 0; i < this.heroes.length; i++) {
-      let hero = this.heroes[i];
-
-      for (let j = 0; j < hero.gemTypes.length; j++) {
-        let gt = hero.gemTypes[j];
-        this.heroGemType.add(GemType[gt]);
-      }
+        this.heroes = [];
+        this.heroGemType = new Set();
     }
 
-    return this.heroGemType;
-  }
+    getTotalHeroAlive() {
+        return this.getHerosAlive().length;
+    }
 
-  firstAliveHeroCouldReceiveMana(type) {
-    const res = this.heroes.find(
-      (hero) => hero.isAlive() && hero.couldTakeMana(type)
-    );
-    return res;
-  }
+    getHerosAlive() {
+        return this.heroes.filter(hero => hero.isAlive());
+    }
+    
 
-  clone() {
-    const cloned = new Player(this.playerId, this.displayName);
-    cloned.heroes = this.heroes.map((hero) => hero.clone());
-    cloned.heroGemType = new Set(Array.from(this.heroGemType));
-    cloned.signature = this.signature;
-    cloned.metrics = this.metrics;
-    return cloned;
-  }
+    getCastableHeros() {
+        let arr = this.heroes.filter(hero => hero.isAlive() && hero.isFullMana());
+        return arr;
+    }
+
+    sameOne(other) {
+        return this.signature == other.signature;
+    }
+
+    isLose() {
+        return !this.firstHeroAlive();
+    }
+
+    anyHeroFullMana() {
+        let arr = this.heroes.filter(hero => hero.isAlive() && hero.isFullMana());
+
+        let hero = arr != null && arr != undefined && arr.length > 0 ? arr[0] : null;
+        return hero;
+    }
+
+    allHeroFullMana() {
+        return this.heroes.filter(hero => hero.isAlive() && hero.isFullMana());
+    }
+
+    firstHeroAlive() {
+        let arr = this.heroes.filter(hero => hero.isAlive());
+
+        let hero = arr != null && arr != undefined && arr.length > 0 ? arr[0] : null;
+        return hero;
+    }
+
+    getRecommendGemType() {
+        this.heroGemType = new Set();
+
+        for (let i = 0; i < this.heroes.length; i++){
+            let hero = this.heroes[i];
+
+            for (let j = 0; j < hero.gemTypes.length; j++){
+                let gt = hero.gemTypes[j];
+                this.heroGemType.add(GemType[gt]);
+            }
+        }        
+
+        return this.heroGemType;
+    }
+
+    firstAliveHeroCouldReceiveMana(type) {
+        const res = this.heroes.find(hero => hero.isAlive() && hero.couldTakeMana(type));
+        return res;
+    }
+
+    hasHeroFullManaAndCanKill() {
+        const allHeroFullMana = this.allHeroFullMana();
+        return (allHeroFullMana.length && 
+        allHeroFullMana.find(x => x.id == "THUNDER_GOD" || x.id == "AIR_SPIRIT"
+        || x.id == "SEA_GOD" || x.id == "SKELETON"
+        || x.id == "MERMAID" || x.id == "DISPATER"));
+
+    }
+
+    clone() {
+        const cloned = new Player(this.playerId, this.displayName);
+        cloned.heroes = this.heroes.map(hero => hero.clone());
+        cloned.heroGemType = new Set(Array.from(this.heroGemType));
+        cloned.signature = this.signature;
+        cloned.metrics = this.metrics;
+        return cloned;
+    }
 }
