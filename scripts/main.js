@@ -398,37 +398,41 @@ function SendFinishTurn(isFirstTurn) {
 }
 
 function StartTurn(param) {
-  currentPlayerId = param.getInt("currentPlayerId");
-  visualizer.snapShot();
-  const redGems = countGem(GemType.RED);
-  console.log(redGems);
-  console.log(GemType.RED);
+  try {
+    currentPlayerId = param.getInt("currentPlayerId");
+    visualizer.snapShot();
+    const redGems = countGem(GemType.RED);
+    console.log(redGems);
+    console.log(GemType.RED);
 
-  setTimeout(function () {
-    if (!isBotTurn()) {
-      trace("not isBotTurn");
-      return;
-    }
+    setTimeout(function () {
+      if (!isBotTurn()) {
+        trace("not isBotTurn");
+        return;
+      }
 
-    if (strategy) {
-      strategy.playTurn();
-      return;
-    }
-    let heroFullMana = botPlayer.listHeroFullMana();
-    let listHeroFullMana = botPlayer.listHeroFullMana();
+      if (strategy) {
+        strategy.playTurn();
+        return;
+      }
+      let heroFullMana = botPlayer.listHeroFullMana();
+      let listHeroFullMana = botPlayer.listHeroFullMana();
 
-    // =====================================
-    if (heroFullMana.length > 0) {
-      // ==================== if hero is canh cut ======= => buff for con trau ========= => if enemy full mana => contrau use skill
-      console.log("heroFullMana", heroFullMana);
-      console.log(enemyPlayer, "=============enemyPlayer");
-      handleListHeroFullMana(listHeroFullMana);
-      // SendSwapGem();
-      // SendCastSkill(heroFullMana,{targetId: 'SEA_SPIRIT'});
-    } else {
-      SendSwapGem();
-    }
-  }, delaySwapGem);
+      // =====================================
+      if (heroFullMana.length > 0) {
+        // ==================== if hero is canh cut ======= => buff for con trau ========= => if enemy full mana => contrau use skill
+        console.log("heroFullMana", heroFullMana);
+        console.log(enemyPlayer, "=============enemyPlayer");
+        handleListHeroFullMana(listHeroFullMana);
+        // SendSwapGem();
+        // SendCastSkill(heroFullMana,{targetId: 'SEA_SPIRIT'});
+      } else {
+        SendSwapGem();
+      }
+    }, delaySwapGem);
+  } catch (error) {
+    console.log(error, "====================error");
+  }
 }
 
 function countGem(gemType) {
@@ -476,9 +480,11 @@ function handleListHeroFullMana(listHeroFullMana) {
           (hero) => hero.attack + redGems > 18
         );
 
-        if (herosHighAttack.length > 0) {
+        if (herosHighAttack.length > 0 || heroEnemyLowHp.length > 0) {
           heroWithHighestDame = herosHighAttack[0];
-          SendCastSkill(hero, { targetId: heroWithHighestDame.id });
+          SendCastSkill(hero, {
+            targetId: heroWithHighestDame.id || heroEnemyLowHp[0].id,
+          });
         } else {
           // SendSwapGem();
         }
