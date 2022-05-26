@@ -144,8 +144,8 @@ class Grid {
                 allDameGemTypes = allDameGemTypes.map(x => GemType[x]);
                 console.log('buffHero', buffHero);
                 if ((buffHero && buffHero.attack < 15)
-                    // Tướng buff còn sống khỏe hoặc bên kia có thể giết mình
-                    || (buffHero && !(buffHero.hp <= 15)) || this.enemyPlayer.hasHeroFullManaAndCanKill()) {
+                    // Ko có tướng bên kia có thể giết mình
+                    || !this.enemyPlayer.hasHeroFullManaAndCanKill(buffHero.hp)) {
                     // ăn ngọc buff
                     console.log('ăn ngọc buff', matchGemType);
                     const matchGemTypeTemp = allmatchGemType.find(x => buffHeroGemType.includes(x.type));
