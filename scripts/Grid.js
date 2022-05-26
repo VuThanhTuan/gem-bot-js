@@ -103,17 +103,21 @@ class Grid {
             if (matchGemSizeThanFourAll.length
                 && matchGemSizeThanFourAll.filter(x => Array.from(this.myHeroGemType).includes(x.type))) {
                 console.log("22222222222");
-                let matMyheroGem = matchGemSizeThanFourAll.find(x => Array.from(this.myHeroGemType).includes(x.type));
-                let maxMatchGemSword = this.getMaxGemMatch(matchGemSizeThanFourAll);
+                let allMatMyheroGem = matchGemSizeThanFourAll.filter(x => Array.from(this.myHeroGemType).includes(x.type));
+                let allMaxMatchGemSword = matchGemSizeThanFourAll.filter(x => x.type == GemType.SWORD);
+
+                const matMyheroGem = this.getMaxGemMatch(allMatMyheroGem);
+                const maxMatchGemSword = this.getMaxGemMatch(allMaxMatchGemSword);
+                if (maxMatchGemSword && myFirstHero.attack >= 14) {
+                    return maxMatchGemSword.getIndexSwapGem();
+                }
+
                 if (matMyheroGem) {
                     return matMyheroGem.getIndexSwapGem();
                 }
-                else {
-                    return maxMatchGemSword.getIndexSwapGem();
-                }
             }
 
-            // todo ưu tiên ăn nhiều nhất có thể
+            // ăn ngọc đặc biệt
 
             /// Gem of heroes ưu tiên ăn gem tướng buff giai đoạn đầu tướng chủ lực giai đoạn sau
             console.log("myHeroGemType: ", this.myHeroGemType, "| Array.from(this.myHeroGemType)", Array.from(this.myHeroGemType));
