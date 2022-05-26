@@ -108,12 +108,12 @@ class Grid {
 
                 const matMyheroGem = this.getMaxGemMatch(allMatMyheroGem);
                 const maxMatchGemSword = this.getMaxGemMatch(allMaxMatchGemSword);
-                if (maxMatchGemSword && myFirstHero.attack >= 14) {
-                    return maxMatchGemSword.getIndexSwapGem();
-                }
-
                 if (matMyheroGem) {
                     return matMyheroGem.getIndexSwapGem();
+                }
+
+                if (maxMatchGemSword) {
+                    return maxMatchGemSword.getIndexSwapGem();
                 }
             }
 
