@@ -97,11 +97,11 @@ class Hero {
     }
 
     shouldbeKillByDam(firstBotHero) {
-       return firstBotHero.attack >= this.hp
-            && (this.id == "THUNDER_GOD" || this.id == "AIR_SPIRIT"
-                || this.id == "SEA_GOD" || this.id == "SKELETON"
-                || this.id == "MERMAID" ||
-                (this.id == "DISPATER" && this.mana >= this.maxMana))
+       return firstBotHero.attack >= this.hp;
+            // && (this.id == "THUNDER_GOD" || this.id == "AIR_SPIRIT"
+            //     || this.id == "SEA_GOD" || this.id == "SKELETON"
+            //     || this.id == "MERMAID" ||
+            //     (this.id == "DISPATER" && this.mana >= this.maxMana))
     }
 
     clone() {

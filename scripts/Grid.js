@@ -58,8 +58,9 @@ class Grid {
             const listAllMatchSword = listMatchGem.filter(gemMatch => gemMatch.type == GemType.SWORD);
             const myFirstHero = this.botPlayer.firstHeroAlive();
             const enemyFirstHero = this.enemyPlayer.firstHeroAlive();
-            if (listAllMatchSword.length > 0
-                && enemyFirstHero.shouldbeKillByDam(myFirstHero)) {
+            if ((listAllMatchSword.length > 0
+                && enemyFirstHero.shouldbeKillByDam(myFirstHero))) {
+                    //todo check dame to va mana thấp ăn gem cx ko kịp
                 console.log("11111111111");
                 let matchGemSword = this.getMaxGemMatch(listAllMatchSword)
                 if (matchGemSword) {
