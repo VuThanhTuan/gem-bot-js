@@ -116,8 +116,9 @@ class Player {
     return res;
   }
 
-  hasHeroFullManaAndCanKill() {
+  hasHeroFullManaAndCanKill(hp) {
     const allHeroFullMana = this.allHeroFullMana();
+    const firstHrAlive = this.firstHeroAlive()
     return (
       allHeroFullMana.length &&
       allHeroFullMana.find(
@@ -129,7 +130,7 @@ class Player {
           x.id == "MERMAID" ||
           x.id == "DISPATER"
       )
-    );
+    ) || firstHrAlive.attack >= hp;
   }
 
   clone() {

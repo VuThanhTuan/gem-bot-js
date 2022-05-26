@@ -42,12 +42,42 @@ class Grid {
         return listMatchGem.find(x => x.sizeMatch == max);
     }
 
+    allMatchSword() {
+        let listMatchGem = this.suggestMatch();
+        return listMatchGem.filter(gemMatch => gemMatch.type == GemType.SWORD);
+    }
+
+    isLowMana(allMatchGems) {
+        const allHero = this.botPlayer.listHeroAlive();
+
+        for (let i = 0; i < allHero.length; i++) {
+            switch (allHero[i].id) {
+                case "SEA_GOD":
+                    if (allHero[i].mana < 6 && !allMatchGems.find(x => x.type == GemType.BROWN || x.type == GemType.BLUE)) {
+                        return false;
+                    }
+                    break;
+                case "FIRE_SPIRIT":
+                    if (allHero[i].mana < 4 && !allMatchGems.find(x => x.type == GemType.RED || x.type == GemType.BLUE)) {
+                        return false;
+                    }
+                    break;
+                case "CERBERUS":
+                    if (allHero[i].mana < 3 && !allMatchGems.find(x => x.type == GemType.BLUE || x.type == GemType.BROWN)) {
+                        return false;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        return true;
+    }
+
     recommendSwapGem() {
         let listMatchGem = this.suggestMatch();
-
         console.log("recommendSwapGem: ", listMatchGem);
-
-
+        console.log("all Hero: ", listMatchGem);
 
         if (listMatchGem.length === 0) {
             return [-1, -1];
@@ -59,8 +89,8 @@ class Grid {
             const myFirstHero = this.botPlayer.firstHeroAlive();
             const enemyFirstHero = this.enemyPlayer.firstHeroAlive();
             if ((listAllMatchSword.length > 0
-                && enemyFirstHero.shouldbeKillByDam(myFirstHero))) {
-                    //todo check dame to va mana thấp ăn gem cx ko kịp
+                && enemyFirstHero.shouldbeKillByDam(myFirstHero)) || this.isLowMana(listMatchGem)) {
+                //todo check dame to va mana thấp ăn gem cx ko kịp
                 console.log("11111111111");
                 let matchGemSword = this.getMaxGemMatch(listAllMatchSword)
                 if (matchGemSword) {
@@ -68,11 +98,10 @@ class Grid {
                 }
             }
 
-            // ưu tiên match size 5 || 4 nếu include gem of hero hoặc enemy
+            // ưu tiên match size 5 || 4 nếu include gem of hero
             let matchGemSizeThanFourAll = listMatchGem.filter(gemMatch => gemMatch.sizeMatch >= 4);
             if (matchGemSizeThanFourAll.length
-                && (matchGemSizeThanFourAll.filter(x => Array.from(this.myHeroGemType).includes(x.type))
-                    || matchGemSizeThanFourAll.filter(x => Array.from(this.enemyGemTypes).includes(x.type)))) {
+                && matchGemSizeThanFourAll.filter(x => Array.from(this.myHeroGemType).includes(x.type))) {
                 console.log("22222222222");
                 let matMyheroGem = matchGemSizeThanFourAll.find(x => Array.from(this.myHeroGemType).includes(x.type));
                 let maxMatchGemSword = this.getMaxGemMatch(matchGemSizeThanFourAll);
@@ -90,9 +119,10 @@ class Grid {
             console.log("myHeroGemType: ", this.myHeroGemType, "| Array.from(this.myHeroGemType)", Array.from(this.myHeroGemType));
             let allmatchGemType = listMatchGem.filter(gemMatch => Array.from(this.myHeroGemType).includes(gemMatch.type));
             console.log("matchGemAll: ", allmatchGemType);
-            const BF_HERO_ID = "MONK";
-            const DM_HERO_ID_1 = "CERBERUS";
-            const DM_HERO_ID_2 = "FIRE_SPIRIT";
+            const allHr = this.botPlayer.heros;
+            const BF_HERO_ID = allHr[0].id;
+            const DM_HERO_ID_1 = allHr[1].id;
+            const DM_HERO_ID_2 = allHr[2].id;
             if (allmatchGemType.length) {
                 console.log("33333333333");
                 let matchGemType = allmatchGemType[0];
@@ -113,9 +143,9 @@ class Grid {
 
                 allDameGemTypes = allDameGemTypes.map(x => GemType[x]);
                 console.log('buffHero', buffHero);
-                if (buffHero && ((dmHero1 && dmHero1.attack < 15) || (dmHero2 && dmHero2.attack < 15))
-                    // Tướng buff còn sống khỏe
-                    && !(buffHero.hp <= 10 && this.enemyPlayer.hasHeroFullManaAndCanKill())) {
+                if ((buffHero && buffHero.attack < 15)
+                    // Tướng buff còn sống khỏe hoặc bên kia có thể giết mình
+                    || (buffHero && !(buffHero.hp <= 15)) || this.enemyPlayer.hasHeroFullManaAndCanKill()) {
                     // ăn ngọc buff
                     console.log('ăn ngọc buff', matchGemType);
                     const matchGemTypeTemp = allmatchGemType.find(x => buffHeroGemType.includes(x.type));
@@ -142,7 +172,7 @@ class Grid {
                         matchGemTypeTemp = allmatchGemType.find(x => allDameGemTypes.includes(x.type));
                     }
 
-                    
+
                     if (matchGemTypeTemp) {
                         matchGemType = matchGemTypeTemp;
                     }

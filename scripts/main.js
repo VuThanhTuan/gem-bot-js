@@ -422,6 +422,12 @@ function StartTurn(param) {
       let listHeroFullMana = botPlayer.listHeroFullMana();
 
       // =====================================
+      const myFirstHero = botPlayer.firstHeroAlive();
+      const enemyFirstHero = enemyPlayer.firstHeroAlive();
+      if(enemyFirstHero.shouldbeKillByDam(myFirstHero) && grid.allMatchSword()) {
+        SendSwapGem();
+      }
+
       if (heroFullMana.length > 0) {
         // ==================== if hero is canh cut ======= => buff for con trau ========= => if enemy full mana => contrau use skill
         console.log("heroFullMana", heroFullMana);
