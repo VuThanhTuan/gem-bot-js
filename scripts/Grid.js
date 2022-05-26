@@ -119,7 +119,7 @@ class Grid {
             console.log("myHeroGemType: ", this.myHeroGemType, "| Array.from(this.myHeroGemType)", Array.from(this.myHeroGemType));
             let allmatchGemType = listMatchGem.filter(gemMatch => Array.from(this.myHeroGemType).includes(gemMatch.type));
             console.log("matchGemAll: ", allmatchGemType);
-            const allHr = this.botPlayer.heros;
+            const allHr = this.botPlayer.heroes;
             const BF_HERO_ID = allHr[0].id;
             const DM_HERO_ID_1 = allHr[1].id;
             const DM_HERO_ID_2 = allHr[2].id;

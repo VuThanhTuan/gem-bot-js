@@ -57,43 +57,6 @@ class Player {
     return hero;
   }
 
-  getTotalHeroAlive() {
-    return this.getHerosAlive().length;
-  }
-
-  getHerosAlive() {
-    return this.heroes.filter((hero) => hero.isAlive());
-  }
-
-  getCastableHeros() {
-    let arr = this.heroes.filter((hero) => hero.isAlive() && hero.isFullMana());
-    return arr;
-  }
-
-  sameOne(other) {
-    return this.signature == other.signature;
-  }
-
-  isLose() {
-    return !this.firstHeroAlive();
-  }
-
-  anyHeroFullMana() {
-    let arr = this.heroes.filter((hero) => hero.isAlive() && hero.isFullMana());
-
-    let hero =
-      arr != null && arr != undefined && arr.length > 0 ? arr[0] : null;
-    return hero;
-  }
-
-  firstHeroAlive() {
-    let arr = this.heroes.filter((hero) => hero.isAlive());
-
-    let hero =
-      arr != null && arr != undefined && arr.length > 0 ? arr[0] : null;
-    return hero;
-  }
-
   getRecommendGemType() {
     this.heroGemType = new Set();
 
@@ -117,7 +80,7 @@ class Player {
   }
 
   hasHeroFullManaAndCanKill(hp) {
-    const allHeroFullMana = this.allHeroFullMana();
+    const allHeroFullMana = this.listHeroFullMana();
     const firstHrAlive = this.firstHeroAlive()
     return (
       allHeroFullMana.length &&
