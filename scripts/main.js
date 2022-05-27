@@ -445,8 +445,9 @@ function countGem(gemType) {
 
 function handleListHeroFullMana(listHeroFullMana) {
   try {
-    const heroesEnemyFullMana = checkEnemyFullMana();
+    console.log("=============================enemyPlayer.getHerosAlive()", JSON.stringify(enemyPlayer.getHerosAlive()));
 
+    const heroesEnemyFullMana = checkEnemyFullMana();
     (listHeroFullMana || []).forEach((hero) => {
       const heroEnemyLowHp = (enemyPlayer.getHerosAlive() || []).filter(
         (heroEnemy) => heroEnemy.hp <= hero.attack
@@ -474,31 +475,32 @@ function handleListHeroFullMana(listHeroFullMana) {
         }
         case "FIRE_SPIRIT": {
           const redGems = countGem(GemType.RED);
-          console.log("============redGems", redGems);
           const herosHighAttack = (enemyPlayer.listHeroAlive() || []).filter(
             (hero) => hero.attack + redGems > 23
           );
 
           const hasCanKill = enemyPlayer
             .getHerosAlive()
-            .filter((hero) => hero.attack + redGems <= hero.hp);
+            .filter((hero) => hero.attack + redGems >= hero.hp && hero.hp > 0);
           if (hasCanKill.length > 0) {
+            console.log("======== hasCanKill", hasCanKill);
             SendCastSkill(hero, { targetId: hasCanKill[0].id });
           }
+
           if (botPlayer.getHerosAlive().length === 1) {
             if (botPlayer.getHerosAlive()[0].id === "FIRE_SPIRIT") {
+              console.log("======== only fire");
               SendCastSkill(hero, {
                 targetId: enemyPlayer.firstHeroAlive().id,
               });
             }
           }
 
-          if (botPlayer.getHerosAlive().length === 1) {
-            if (botPlayer.getHerosAlive()[0].id === "FIRE_SPIRIT") {
-              SendCastSkill(hero, {
-                targetId: enemyPlayer.firstHeroAlive().id,
-              });
-            }
+          if (enemyPlayer.getHerosAlive().length === 1) {
+            console.log("============chi con mot tuong dich con song");
+            SendCastSkill(hero, {
+              targetId: enemyPlayer.firstHeroAlive().id,
+            });
           }
 
           if (herosHighAttack.length > 0) {
@@ -507,8 +509,6 @@ function handleListHeroFullMana(listHeroFullMana) {
             SendCastSkill(hero, {
               targetId: heroWithHighestDame.id,
             });
-          } else {
-            SendSwapGem();
           }
         }
         case "CERBERUS": {
