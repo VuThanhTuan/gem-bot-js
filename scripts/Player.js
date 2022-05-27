@@ -81,19 +81,29 @@ class Player {
 
   hasHeroFullManaAndCanKill(hp) {
     const allHeroFullMana = this.listHeroFullMana();
-    const firstHrAlive = this.firstHeroAlive()
+    const firstHrAlive = this.firstHeroAlive();
+
+    console.log(
+      "=========firstHrAlive",
+      firstHrAlive.attack,
+      "==============hp",
+      firstHrAlive.hp
+    );
+
     return (
-      allHeroFullMana.length &&
-      allHeroFullMana.find(
-        (x) =>
-          x.id == "THUNDER_GOD" ||
-          x.id == "AIR_SPIRIT" ||
-          x.id == "SEA_GOD" ||
-          x.id == "SKELETON" ||
-          x.id == "MERMAID" ||
-          x.id == "DISPATER"
-      )
-    ) || firstHrAlive.attack >= hp;
+      (allHeroFullMana.length &&
+        allHeroFullMana.find(
+          (x) =>
+            x.id == "THUNDER_GOD" ||
+            x.id == "AIR_SPIRIT" ||
+            x.id == "SEA_GOD" ||
+            x.id == "SKELETON" ||
+            x.id == "MERMAID" ||
+            x.id == "DISPATER"
+        ) &&
+        hp <= 8) ||
+      firstHrAlive.attack >= hp
+    );
   }
 
   clone() {

@@ -184,38 +184,39 @@ class Grid {
 
         const buffHeroGemType =
           buffHero && buffHero.gemTypes.map((x) => GemType[x]);
-        let dmHero1GemTypes = dmHero1 && dmHero1.gemTypes.map((x) => GemType[x]);
-        let dmHero2GemTypes = dmHero2 && dmHero2.gemTypes.map((x) => GemType[x]);
-      
-        if (dmHero1 && !this.enemyPlayer.hasHeroFullManaAndCanKill(dmHero1.hp)) {
+        let dmHero1GemTypes =
+          dmHero1 && dmHero1.gemTypes.map((x) => GemType[x]);
+        let dmHero2GemTypes =
+          dmHero2 && dmHero2.gemTypes.map((x) => GemType[x]);
+        if (
+          dmHero1 &&
+          !this.enemyPlayer.hasHeroFullManaAndCanKill(dmHero1.hp)
+        ) {
           const matchGemTypeTemp = allmatchGemType.find((x) =>
             dmHero1GemTypes.includes(x.type)
           );
 
           if (matchGemTypeTemp) {
-            console.log("Bò", matchGemType);
-            return matchGemType.getIndexSwapGem();
+            console.log("Bò", matchGemTypeTemp);
+            return matchGemTypeTemp.getIndexSwapGem();
           }
-
-        }
-        else if (!dmHero1 && dmHero2.mana >= 3) {
+        } else if (!dmHero1 && dmHero2.mana >= 3) {
           const matchGemTypeTemp = allmatchGemType.find((x) =>
             dmHero2GemTypes.includes(x.type)
           );
 
           if (matchGemTypeTemp) {
             console.log("lửa", matchGemType);
-            return matchGemType.getIndexSwapGem();
+            return matchGemTypeTemp.getIndexSwapGem();
           }
-        }
-        else {
+        } else {
           const matchGemTypeTemp = allmatchGemType.find((x) =>
             buffHeroGemType.includes(x.type)
           );
 
           if (matchGemTypeTemp) {
             console.log("chim", matchGemType);
-            return matchGemType.getIndexSwapGem();
+            return matchGemTypeTemp.getIndexSwapGem();
           }
         }
       }
@@ -279,10 +280,10 @@ class Grid {
       if (currentGem.x > 0) {
         swapGem =
           this.gems[
-          this.getGemIndexAt(
-            parseInt(currentGem.x - 1),
-            parseInt(currentGem.y)
-          )
+            this.getGemIndexAt(
+              parseInt(currentGem.x - 1),
+              parseInt(currentGem.y)
+            )
           ];
 
         this.checkMatchSwapGem(listMatchGem, currentGem, swapGem);
@@ -291,10 +292,10 @@ class Grid {
       if (currentGem.x < 7) {
         swapGem =
           this.gems[
-          this.getGemIndexAt(
-            parseInt(currentGem.x + 1),
-            parseInt(currentGem.y)
-          )
+            this.getGemIndexAt(
+              parseInt(currentGem.x + 1),
+              parseInt(currentGem.y)
+            )
           ];
 
         this.checkMatchSwapGem(listMatchGem, currentGem, swapGem);
@@ -303,10 +304,10 @@ class Grid {
       if (currentGem.y < 7) {
         swapGem =
           this.gems[
-          this.getGemIndexAt(
-            parseInt(currentGem.x),
-            parseInt(currentGem.y + 1)
-          )
+            this.getGemIndexAt(
+              parseInt(currentGem.x),
+              parseInt(currentGem.y + 1)
+            )
           ];
 
         this.checkMatchSwapGem(listMatchGem, currentGem, swapGem);
@@ -315,10 +316,10 @@ class Grid {
       if (currentGem.y > 0) {
         swapGem =
           this.gems[
-          this.getGemIndexAt(
-            parseInt(currentGem.x),
-            parseInt(currentGem.y - 1)
-          )
+            this.getGemIndexAt(
+              parseInt(currentGem.x),
+              parseInt(currentGem.y - 1)
+            )
           ];
 
         this.checkMatchSwapGem(listMatchGem, currentGem, swapGem);

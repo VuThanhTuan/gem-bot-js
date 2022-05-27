@@ -445,62 +445,82 @@ function countGem(gemType) {
 
 function handleListHeroFullMana(listHeroFullMana) {
   try {
-    console.log("=============================enemyPlayer.getHerosAlive()", JSON.stringify(enemyPlayer.getHerosAlive()));
+    console.log(
+      "=============================enemyPlayer.getHerosAlive()",
+      JSON.stringify(enemyPlayer.getHerosAlive())
+    );
+
+    const botPlayerClone = botPlayer.clone();
+    const enemyPlayerClone = enemyPlayer.clone();
 
     const heroesEnemyFullMana = checkEnemyFullMana();
-    (listHeroFullMana || []).forEach((hero) => {
-      const heroEnemyLowHp = (enemyPlayer.getHerosAlive() || []).filter(
-        (heroEnemy) => heroEnemy.hp <= hero.attack
-      );
-
-      switch (hero.id) {
-        case "SEA_GOD": {
+    if (listHeroFullMana.length) {
+      for (let index = 0; index < listHeroFullMana.length; index++) {
+        const hero = listHeroFullMana[index];
+        const heroEnemyLowHp = (enemyPlayerClone.getHerosAlive() || []).filter(
+          (heroEnemy) => heroEnemy.hp <= hero.attack
+        );
+        if (hero.id === "SEA_GOD") {
           if (heroesEnemyFullMana.length > 0 || heroEnemyLowHp.length > 0) {
             SendCastSkill(hero);
+            return;
           }
-        }
-        case "SEA_SPIRIT": {
+        } else if (hero.id === "SEA_SPIRIT") {
           if (
-            (botPlayer.getHerosAlive() || []).filter(
+            (botPlayerClone.getHerosAlive() || []).filter(
               (hero) => hero.id === "SEA_GOD"
             ).length !== 0
           ) {
             SendCastSkill(hero, { targetId: "SEA_GOD" });
+            return;
           } else {
-            const firstHeroAlive = botPlayer.firstHeroAlive();
+            const firstHeroAlive = botPlayerClone.firstHeroAlive();
             SendCastSkill(hero, {
               targetId: firstHeroAlive.id || "FIRE_SPIRIT",
             });
+            return;
           }
-        }
-        case "FIRE_SPIRIT": {
+        } else if (hero.id === "FIRE_SPIRIT") {
           const redGems = countGem(GemType.RED);
-          const herosHighAttack = (enemyPlayer.listHeroAlive() || []).filter(
+          const herosHighAttack = (enemyPlayerClone.listHeroAlive() || []).filter(
             (hero) => hero.attack + redGems > 23
           );
 
-          const hasCanKill = enemyPlayer
+          const hasCanKill = enemyPlayerClone
+            .clone()
             .getHerosAlive()
             .filter((hero) => hero.attack + redGems >= hero.hp && hero.hp > 0);
+
           if (hasCanKill.length > 0) {
-            console.log("======== hasCanKill", hasCanKill);
+            if(hasCanKill.find(hero=> hero.id === "SEA_GOD")){
+              SendCastSkill(hero, { targetId: "SEA_GOD" });
+            }else if(hasCanKill.find(hero=> hero.id === "CERBERUS")){
+              SendCastSkill(hero, { targetId: "CERBERUS" });
+            }else if(hasCanKill.find(hero=> hero.id === "FIRE_SPIRIT")){
+              SendCastSkill(hero, { targetId: "FIRE_SPIRIT" });
+            }else if(hasCanKill.find(hero=> hero.id === "THUNDER_GOD")){
+              SendCastSkill(hero, { targetId: "THUNDER_GOD" });
+            }
             SendCastSkill(hero, { targetId: hasCanKill[0].id });
+            return;
           }
 
-          if (botPlayer.getHerosAlive().length === 1) {
-            if (botPlayer.getHerosAlive()[0].id === "FIRE_SPIRIT") {
+          if (botPlayerClone.getHerosAlive().length === 1) {
+            if (botPlayerClone.getHerosAlive()[0].id === "FIRE_SPIRIT") {
               console.log("======== only fire");
               SendCastSkill(hero, {
-                targetId: enemyPlayer.firstHeroAlive().id,
+                targetId: enemyPlayerClone.firstHeroAlive().id,
               });
+              return;
             }
           }
 
-          if (enemyPlayer.getHerosAlive().length === 1) {
+          if (enemyPlayerClone.getHerosAlive().length === 1) {
             console.log("============chi con mot tuong dich con song");
             SendCastSkill(hero, {
-              targetId: enemyPlayer.firstHeroAlive().id,
+              targetId: enemyPlayerClone.firstHeroAlive().id,
             });
+            return;
           }
 
           if (herosHighAttack.length > 0) {
@@ -509,43 +529,23 @@ function handleListHeroFullMana(listHeroFullMana) {
             SendCastSkill(hero, {
               targetId: heroWithHighestDame.id,
             });
+            return;
           }
         }
-        case "CERBERUS": {
-          // listHeroFullMana.forEach()
-          if (hero.attack > 10) {
-            SendCastSkill(hero);
-          }
-        }
-        case "MONK": {
-          SendCastSkill(hero);
-        }
-        case "THUNDER_GOD": {
-          const yellowGems = countGem(GemType.YELLOW);
-          const herroAttack = hero.attack + yellowGems;
-          if (herroAttack > 25) {
-            SendCastSkill(hero);
-          }
-        }
-        // default: {
-        //   SendCastSkill(
-        //     hero,
-        //     heroEnemyLowHp.length ? { targetId: heroEnemyLowHp[0]?.id } : {}
-        //   );
-        // }
       }
-    });
 
-    SendSwapGem();
+      SendSwapGem();
+    }
   } catch (error) {
     SendSwapGem();
-    console.log("======================================errooor", error);
+    console.error("======================================errooor", error);
   }
 }
 
 function checkEnemyFullMana() {
   // if any hero full mana
-  const heroesEnemyFullMana = (enemyPlayer.heroes || []).filter(
+  const enemyPlayerClone = enemyPlayer.clone()
+  const heroesEnemyFullMana = (enemyPlayerClone.heroes || []).filter(
     (hero) => hero.mana === hero.maxMana
   );
   if (heroesEnemyFullMana.length > 0) {
