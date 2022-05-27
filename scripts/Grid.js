@@ -176,7 +176,7 @@ class Grid {
       if (allmatchGemType.length) {
         console.log("33333333333");
         let matchGemType = allmatchGemType[0];
-        const allHeroAlive = this.botPlayer.getHerosAlive();
+        const allHeroAlive = this.botPlayer.clone().getHerosAlive();
         console.log("allmatchGemType", allmatchGemType);
         const buffHero = allHeroAlive.find((x) => x.id == allHr[0].id);
         const dmHero1 = allHeroAlive.find((x) => x.id == allHr[1].id);
@@ -190,7 +190,7 @@ class Grid {
           dmHero2 && dmHero2.gemTypes.map((x) => GemType[x]);
         if (
           dmHero1 &&
-          !this.enemyPlayer.hasHeroFullManaAndCanKill(dmHero1.hp)
+          !this.enemyPlayer.hasHeroFullManaAndCanKill(dmHero1.hp, buffHero)
         ) {
           const matchGemTypeTemp = allmatchGemType.find((x) =>
             dmHero1GemTypes.includes(x.type)
@@ -200,7 +200,7 @@ class Grid {
             console.log("Bò", matchGemTypeTemp);
             return matchGemTypeTemp.getIndexSwapGem();
           }
-        } else if (!dmHero1 && dmHero2.mana >= 3) {
+        } else if ((!dmHero1 && dmHero2 && dmHero2.mana >= 3)|| (dmHero2 && !buffHero)) {
           const matchGemTypeTemp = allmatchGemType.find((x) =>
             dmHero2GemTypes.includes(x.type)
           );
@@ -209,7 +209,8 @@ class Grid {
             console.log("lửa", matchGemType);
             return matchGemTypeTemp.getIndexSwapGem();
           }
-        } else {
+        } else if(buffHero) {
+          
           const matchGemTypeTemp = allmatchGemType.find((x) =>
             buffHeroGemType.includes(x.type)
           );
@@ -261,9 +262,13 @@ class Grid {
           Array.from(this.myHeroGemType).includes(gemMatch.type) ||
           gemMatch.type == 0
       );
-      return matchGem
-        ? matchGem.getIndexSwapGem()
-        : listMatchGem[0].getIndexSwapGem();
+
+      if (matchGem) {
+        return matchGem.getIndexSwapGem();
+      }
+      if (listMatchGem.length && listMatchGem[0]) {
+        return listMatchGem[0].getIndexSwapGem();
+      }
     }
   }
 

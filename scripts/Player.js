@@ -79,7 +79,7 @@ class Player {
     return res;
   }
 
-  hasHeroFullManaAndCanKill(hp) {
+  hasHeroFullManaAndCanKill(hp, buffHero) {
     const allHeroFullMana = this.listHeroFullMana();
     const firstHrAlive = this.firstHeroAlive();
 
@@ -102,7 +102,7 @@ class Player {
             x.id == "DISPATER"
         ) &&
         hp <= 8) ||
-      firstHrAlive.attack >= hp
+      (firstHrAlive.attack >= hp && !buffHero)
     );
   }
 
