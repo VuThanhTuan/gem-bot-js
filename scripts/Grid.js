@@ -219,6 +219,8 @@ class Grid {
             console.log("chim", matchGemType);
             return matchGemTypeTemp.getIndexSwapGem();
           }
+        }else{
+          return allmatchGemType[0].getIndexSwapGem();
         }
       }
       ///
