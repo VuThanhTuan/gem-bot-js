@@ -60,9 +60,20 @@ class Grid {
 
   isLowMana(allMatchGems) {
     const allHero = this.botPlayer.listHeroAlive();
-
+    console.log("isLowManaisLowManaisLowMana", allMatchGems);
     for (let i = 0; i < allHero.length; i++) {
       switch (allHero[i].id) {
+        case "SEA_SPIRIT":
+          if (
+            allHero[i].mana < 3 &&
+            !allMatchGems.find(
+              (x) => x.type == GemType.YELLOW || x.type == GemType.GREEN
+            )
+          ) {
+            console.log("SEA_SPIRIT");
+            return false;
+          }
+          break;
         case "SEA_GOD":
           if (
             allHero[i].mana < 6 &&
@@ -70,24 +81,15 @@ class Grid {
               (x) => x.type == GemType.BROWN || x.type == GemType.BLUE
             )
           ) {
+            console.log("SEA_GOD");
             return false;
           }
           break;
         case "FIRE_SPIRIT":
           if (
-            allHero[i].mana < 4 &&
-            !allMatchGems.find(
-              (x) => x.type == GemType.RED || x.type == GemType.BLUE
-            )
-          ) {
-            return false;
-          }
-          break;
-        case "CERBERUS":
-          if (
             allHero[i].mana < 3 &&
             !allMatchGems.find(
-              (x) => x.type == GemType.BLUE || x.type == GemType.BROWN
+              (x) => x.type == GemType.RED || x.type == GemType.PURPLE
             )
           ) {
             return false;
@@ -158,8 +160,6 @@ class Grid {
         }
       }
 
-      // ăn ngọc đặc biệt
-
       /// Gem of heroes ưu tiên ăn gem tướng buff giai đoạn đầu tướng chủ lực giai đoạn sau
       console.log(
         "myHeroGemType: ",
@@ -172,77 +172,52 @@ class Grid {
       );
       console.log("matchGemAll: ", allmatchGemType);
       const allHr = this.botPlayer.heroes;
-      const BF_HERO_ID = allHr[0].id;
-      const DM_HERO_ID_1 = allHr[1].id;
-      const DM_HERO_ID_2 = allHr[2].id;
+
       if (allmatchGemType.length) {
         console.log("33333333333");
         let matchGemType = allmatchGemType[0];
         const allHeroAlive = this.botPlayer.getHerosAlive();
         console.log("allmatchGemType", allmatchGemType);
-        const buffHero = allHeroAlive.find((x) => x.id == BF_HERO_ID);
-        const dmHero1 = allHeroAlive.find((x) => x.id == DM_HERO_ID_1);
-        const dmHero2 = allHeroAlive.find((x) => x.id == DM_HERO_ID_2);
+        const buffHero = allHeroAlive.find((x) => x.id == allHr[0].id);
+        const dmHero1 = allHeroAlive.find((x) => x.id == allHr[1].id);
+        const dmHero2 = allHeroAlive.find((x) => x.id == allHr[2].id);
 
         const buffHeroGemType =
           buffHero && buffHero.gemTypes.map((x) => GemType[x]);
-        let allDameGemTypes = [];
-        if (dmHero1) {
-          allDameGemTypes = [...dmHero1.gemTypes];
-        }
-        if (dmHero2) {
-          allDameGemTypes = [...allDameGemTypes, ...dmHero2.gemTypes];
-        }
+        let dmHero1GemTypes = dmHero1 && dmHero1.gemTypes.map((x) => GemType[x]);
+        let dmHero2GemTypes = dmHero2 && dmHero2.gemTypes.map((x) => GemType[x]);
+      
+        if (dmHero1 && !this.enemyPlayer.hasHeroFullManaAndCanKill(dmHero1.hp)) {
+          const matchGemTypeTemp = allmatchGemType.find((x) =>
+            dmHero1GemTypes.includes(x.type)
+          );
 
-        allDameGemTypes = allDameGemTypes.map((x) => GemType[x]);
-        console.log("buffHero", buffHero);
-        if (
-          (buffHero && buffHero.attack < 15) ||
-          // Ko có tướng bên kia có thể giết mình
-          (buffHero && !this.enemyPlayer.hasHeroFullManaAndCanKill(buffHero.hp))
-        ) {
-          // ăn ngọc buff
-          console.log("ăn ngọc buff", matchGemType);
+          if (matchGemTypeTemp) {
+            console.log("Bò", matchGemType);
+            return matchGemType.getIndexSwapGem();
+          }
+
+        }
+        else if (!dmHero1 && dmHero2.mana >= 3) {
+          const matchGemTypeTemp = allmatchGemType.find((x) =>
+            dmHero2GemTypes.includes(x.type)
+          );
+
+          if (matchGemTypeTemp) {
+            console.log("lửa", matchGemType);
+            return matchGemType.getIndexSwapGem();
+          }
+        }
+        else {
           const matchGemTypeTemp = allmatchGemType.find((x) =>
             buffHeroGemType.includes(x.type)
           );
-          if (matchGemTypeTemp) {
-            matchGemType = matchGemTypeTemp;
-          }
-        } else if (
-          (dmHero1 && dmHero1.attack > 15) ||
-          (dmHero2 && dmHero2.attack > 15)
-        ) {
-          // ăn ngọc dame
-          // cả 2 tướng dame còn sống ưu tiên ăn cho tướng nhiều mana hơn
-          let hightPriorityHero;
-          if (dmHero1 && dmHero2) {
-            if (dmHero1.mana >= 4 || dmHero1.mana > dmHero2.mana) {
-              hightPriorityHero = dmHero1;
-            } else {
-              hightPriorityHero = dmHero2;
-            }
-          }
-          let matchGemTypeTemp;
-          if (hightPriorityHero) {
-            matchGemTypeTemp = allmatchGemType.find((x) =>
-              hightPriorityHero.gemTypes.map((x) => GemType[x]).includes(x.type)
-            );
-          } else {
-            matchGemTypeTemp = allmatchGemType.find((x) =>
-              allDameGemTypes.includes(x.type)
-            );
-          }
 
           if (matchGemTypeTemp) {
-            matchGemType = matchGemTypeTemp;
+            console.log("chim", matchGemType);
+            return matchGemType.getIndexSwapGem();
           }
-          console.log("ăn ngọc dame", matchGemType);
-        } else {
-          matchGemType = allmatchGemType[0];
         }
-
-        return matchGemType.getIndexSwapGem();
       }
       ///
 
@@ -304,10 +279,10 @@ class Grid {
       if (currentGem.x > 0) {
         swapGem =
           this.gems[
-            this.getGemIndexAt(
-              parseInt(currentGem.x - 1),
-              parseInt(currentGem.y)
-            )
+          this.getGemIndexAt(
+            parseInt(currentGem.x - 1),
+            parseInt(currentGem.y)
+          )
           ];
 
         this.checkMatchSwapGem(listMatchGem, currentGem, swapGem);
@@ -316,10 +291,10 @@ class Grid {
       if (currentGem.x < 7) {
         swapGem =
           this.gems[
-            this.getGemIndexAt(
-              parseInt(currentGem.x + 1),
-              parseInt(currentGem.y)
-            )
+          this.getGemIndexAt(
+            parseInt(currentGem.x + 1),
+            parseInt(currentGem.y)
+          )
           ];
 
         this.checkMatchSwapGem(listMatchGem, currentGem, swapGem);
@@ -328,10 +303,10 @@ class Grid {
       if (currentGem.y < 7) {
         swapGem =
           this.gems[
-            this.getGemIndexAt(
-              parseInt(currentGem.x),
-              parseInt(currentGem.y + 1)
-            )
+          this.getGemIndexAt(
+            parseInt(currentGem.x),
+            parseInt(currentGem.y + 1)
+          )
           ];
 
         this.checkMatchSwapGem(listMatchGem, currentGem, swapGem);
@@ -340,10 +315,10 @@ class Grid {
       if (currentGem.y > 0) {
         swapGem =
           this.gems[
-            this.getGemIndexAt(
-              parseInt(currentGem.x),
-              parseInt(currentGem.y - 1)
-            )
+          this.getGemIndexAt(
+            parseInt(currentGem.x),
+            parseInt(currentGem.y - 1)
+          )
           ];
 
         this.checkMatchSwapGem(listMatchGem, currentGem, swapGem);
