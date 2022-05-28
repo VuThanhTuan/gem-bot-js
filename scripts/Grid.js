@@ -200,7 +200,10 @@ class Grid {
             console.log("Bò", matchGemTypeTemp);
             return matchGemTypeTemp.getIndexSwapGem();
           }
-        } else if ((!dmHero1 && dmHero2 && dmHero2.mana >= 3)|| (dmHero2 && !buffHero)) {
+        } else if (
+          (!dmHero1 && dmHero2 && dmHero2.mana >= 3) ||
+          (dmHero2 && !buffHero)
+        ) {
           const matchGemTypeTemp = allmatchGemType.find((x) =>
             dmHero2GemTypes.includes(x.type)
           );
@@ -209,8 +212,7 @@ class Grid {
             console.log("lửa", matchGemType);
             return matchGemTypeTemp.getIndexSwapGem();
           }
-        } else if(buffHero) {
-          
+        } else if (buffHero) {
           const matchGemTypeTemp = allmatchGemType.find((x) =>
             buffHeroGemType.includes(x.type)
           );
@@ -219,7 +221,7 @@ class Grid {
             console.log("chim", matchGemType);
             return matchGemTypeTemp.getIndexSwapGem();
           }
-        }else{
+        } else {
           return allmatchGemType[0].getIndexSwapGem();
         }
       }
@@ -234,13 +236,6 @@ class Grid {
         }
       }
 
-      // ưu tiên ăn kiếm
-      let matchGemSword = this.getMaxGemMatch(listAllMatchSword);
-      if (matchGemSword) {
-        console.log("55555555555");
-        return matchGemSword.getIndexSwapGem();
-      }
-
       //ưu tiên match size 4
       let matchGemSizeThanThree = listMatchGem.find(
         (gemMatch) => gemMatch.sizeMatch > 3
@@ -250,6 +245,14 @@ class Grid {
         console.log("666666666666");
         return matchGemSizeThanThree.getIndexSwapGem();
       }
+
+      // ưu tiên ăn kiếm
+      let matchGemSword = this.getMaxGemMatch(listAllMatchSword);
+      if (matchGemSword) {
+        console.log("55555555555");
+        return matchGemSword.getIndexSwapGem();
+      }
+
       console.log("7777");
       console.log(
         "listMatchGem[0].getIndexSwapGem() ",
