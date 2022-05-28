@@ -470,7 +470,7 @@ function handleListHeroFullMana(listHeroFullMana) {
         } else if (hero.id === "SEA_SPIRIT") {
           if (
             (botPlayerClone.getHerosAlive() || []).filter(
-              (hero) => hero.id === "SEA_GOD"
+              (hero) => hero.id === "SEA_GOD" && hero.hp > 0
             ).length !== 0
           ) {
             SendCastSkill(hero, { targetId: "SEA_GOD" });
@@ -515,7 +515,7 @@ function handleListHeroFullMana(listHeroFullMana) {
           }
 
           if (botPlayerClone.getHerosAlive().length === 1) {
-            if (botPlayerClone.getHerosAlive()[0].id === "FIRE_SPIRIT") {
+            if (botPlayerClone.getHerosAlive()[0].hp > 0 && botPlayerClone.getHerosAlive()[0].id === "FIRE_SPIRIT") {
               console.log("======== only fire");
               SendCastSkill(hero, {
                 targetId: enemyPlayerClone.firstHeroAlive().id,
